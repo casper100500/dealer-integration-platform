@@ -21,13 +21,10 @@ services:
   db:
     image: postgres:16-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./.postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dealer_inventory}
       POSTGRES_USER: ${POSTGRES_USER:-dealer_inventory}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dealer_inventory}
     ports:
       - "5432:5432"
-
-volumes:
-  postgres_data:

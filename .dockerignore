@@ -1,6 +1,7 @@
 .git
 .gitignore
 .env
+.postgres_data/
 .venv
 __pycache__/
 *.py[cod]

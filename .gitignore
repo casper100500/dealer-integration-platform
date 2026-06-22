@@ -8,6 +8,7 @@ env/
 
 # Django
 .env
+.postgres_data/
 
 # Editors and OS
 .DS_Store
