@@ -36,6 +36,7 @@ Run formatting and lint checks:
 docker compose run --rm web black --check .
 docker compose run --rm web isort --check-only .
 docker compose run --rm web flake8 .
+docker compose run --rm web mypy .
 ```
 
 Add a Python dependency:
