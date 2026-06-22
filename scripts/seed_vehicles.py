@@ -1,6 +1,5 @@
 from inventory.models import Vehicle
 
-
 VEHICLES = [
     {
         "vin": "TMBKK61Z3C2131743",
