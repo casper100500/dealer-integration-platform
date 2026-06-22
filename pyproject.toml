@@ -10,6 +10,7 @@ package-mode = false
 python = "^3.14"
 django = ">=6.0.6,<7.0"
 psycopg = { version = ">=3.1,<4.0", extras = ["binary"] }
+celery = {version = ">=5.5,<6.0", extras = ["redis"]}
 
 [tool.poetry.group.dev.dependencies]
 black = "^26.5.1"

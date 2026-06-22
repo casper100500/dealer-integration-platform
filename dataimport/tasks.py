@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from config.celery import app as celery
+
 from .models import ImportSource, VehicaleDataImport
 from .vehicle_loaders import VehicleBaseLoader, VehicleDjangoLoader
 
 
+@celery.task
 def task_run_vehicle_data_import(data_import_id: int) -> None:
     """Select and run the loader for a vehicle data import."""
     data_import = VehicaleDataImport.objects.get(pk=data_import_id)

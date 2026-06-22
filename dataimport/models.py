@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -161,4 +161,6 @@ def run_vehicle_data_import(
     if created and instance.status == ImportStatus.new:
         from .tasks import task_run_vehicle_data_import
 
-        task_run_vehicle_data_import(instance.pk)
+        transaction.on_commit(
+            lambda: task_run_vehicle_data_import.delay(instance.pk)
+        )
