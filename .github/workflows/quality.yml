@@ -1,0 +1,31 @@
+name: Check code quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  checks:
+    name: Lint checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build web image
+        run: docker compose build web
+
+      - name: Check formatting with Black
+        run: docker compose run --rm web black --check .
+
+      - name: Check import sorting with isort
+        run: docker compose run --rm web isort --check-only .
+
+      - name: Lint with flake8
+        run: docker compose run --rm web flake8 .
+
+      - name: Type check with mypy
+        run: docker compose run --rm web mypy .
