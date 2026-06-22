@@ -1,0 +1,22 @@
+name: Run pytest
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build web image
+        run: docker compose build web
+
+      - name: Run pytest
+        run: docker compose run --rm web pytest tests/test_vehicle_import_examples.py -n0

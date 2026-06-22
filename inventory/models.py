@@ -67,6 +67,11 @@ TRANSMISSION_CHOICES = [
     ("other", "Other"),
 ]
 
+CURRENCY_CHOICES = (
+    ("USD", "USD"),
+    ("EUR", "EUR"),
+)
+
 
 class Vehicle(models.Model):
     vin = models.CharField(
@@ -114,3 +119,43 @@ class Vehicle(models.Model):
             str(part) for part in [self.year, self.make, self.model] if part
         )
         return description or f"Vehicle {self.pk}"
+
+
+class InventoryListing(models.Model):
+    dealer = models.ForeignKey(
+        Dealer,
+        related_name="inventory_listings",
+        on_delete=models.PROTECT,
+    )
+    vehicle = models.ForeignKey(
+        Vehicle,
+        related_name="inventory_listings",
+        on_delete=models.CASCADE,
+    )
+    price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
+    currency = models.CharField(
+        max_length=3,
+        choices=CURRENCY_CHOICES,
+        blank=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["dealer", "vehicle"],
+                name="unique_dealer_vehicle_listing",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["dealer", "vehicle"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.dealer} - {self.vehicle}"

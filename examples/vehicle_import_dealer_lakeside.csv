@@ -1,0 +1,6 @@
+vin,plate_number,year,make,model,exterior_color,body_style,fuel_type,engine,transmission,price,currency
+1HGCM82633A004352,LKS-2001,2021,honda,Accord,Blue,sedan,gasoline,2.0L I4,automatic,24900,USD
+WAUZZZ8K9DA123456,LKS-2002,2019,other,A4,Silver,sedan,gasoline,2.0L Turbo,automatic,22100,USD
+JTDBR32E720123456,LKS-2003,2019,toyota,Corolla,Silver,sedan,gasoline,1.8L I4,cvt,17100,USD
+2T3WFREV0FW654321,LKS-2004,2021,toyota,RAV4,Gray,suv,gasoline,2.5L I4,automatic,29500,USD
+JM1BM1V74E1234567,LKS-2005,2018,mazda,Mazda3,Red,hatchback,gasoline,2.0L I4,manual,15350,USD

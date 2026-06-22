@@ -32,6 +32,8 @@ VEHICLE_OBJECT_FIELD_CHOICES = [
     ("fuel_type", "Fuel type"),
     ("engine", "Engine"),
     ("transmission", "Transmission"),
+    ("price", "Price"),
+    ("currency", "Currency"),
 ]
 
 

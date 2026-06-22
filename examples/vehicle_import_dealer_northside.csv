@@ -1,0 +1,6 @@
+vin,plate_number,year,make,model,exterior_color,body_style,fuel_type,engine,transmission,price,currency
+1HGCM82633A004352,NSD-1001,2021,honda,Accord,Blue,sedan,gasoline,2.0L I4,automatic,24650,USD
+3VWFE21C04M000001,NSD-1002,2020,volkswagen,Jetta,White,sedan,diesel,2.0L TDI,manual,18750,USD
+5NPE24AF4FH001234,NSD-1003,2022,hyundai,Sonata,Black,sedan,hybrid,2.0L Hybrid,automatic,28100,USD
+JTDBR32E720123456,NSD-1004,2019,toyota,Corolla,Silver,sedan,gasoline,1.8L I4,cvt,16950,USD
+KM8K12AA9KU765432,NSD-1005,2023,hyundai,Kona,Red,suv,gasoline,2.0L I4,automatic,23800,USD
