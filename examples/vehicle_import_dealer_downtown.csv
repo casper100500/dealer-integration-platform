@@ -1,0 +1,6 @@
+vin,plate_number,year,make,model,exterior_color,body_style,fuel_type,engine,transmission,price,currency
+3VWFE21C04M000001,DTN-3001,2020,volkswagen,Jetta,White,sedan,diesel,2.0L TDI,manual,19100,USD
+KM8K12AA9KU765432,DTN-3002,2023,hyundai,Kona,Red,suv,gasoline,2.0L I4,automatic,24100,USD
+2T3WFREV0FW654321,DTN-3003,2021,toyota,RAV4,Gray,suv,gasoline,2.5L I4,automatic,29250,USD
+1N4AL3AP8JC123456,DTN-3004,2018,nissan,Altima,Black,sedan,gasoline,2.5L I4,cvt,15800,USD
+WDDGF8AB5EA765432,DTN-3005,2021,mercedes_benz,C-Class,Black,sedan,gasoline,2.0L Turbo,automatic,33300,USD
