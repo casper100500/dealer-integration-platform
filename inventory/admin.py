@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 
 from inventory.models import Dealer, InventoryListing, Vehicle
 
@@ -24,7 +26,30 @@ class VehicleAdmin(admin.ModelAdmin):
         "make",
         "model",
         "exterior_color",
+        "dealers",
     ]
-    list_filter = ["make", "year", "body_style", "fuel_type"]
-    search_fields = ["vin", "plate_number", "make", "model"]
+    list_filter = [
+        "inventory_listings__dealer",
+        "make",
+        "year",
+        "body_style",
+        "fuel_type",
+    ]
+    search_fields = [
+        "vin",
+        "plate_number",
+        "make",
+        "model",
+        "inventory_listings__dealer__name",
+    ]
     inlines = [InventoryListingInline]
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Vehicle]:
+        queryset = super().get_queryset(request)
+        return queryset.prefetch_related("inventory_listings__dealer")
+
+    @admin.display(description="Dealers")
+    def dealers(self, obj: Vehicle) -> str:
+        return ", ".join(
+            listing.dealer.name for listing in obj.inventory_listings.all()
+        )
