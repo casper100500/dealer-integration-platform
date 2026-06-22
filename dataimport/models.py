@@ -37,6 +37,7 @@ VEHICLE_OBJECT_FIELD_CHOICES = [
 
 class VehicleDataImportParsingConfig(models.Model):
     name = models.CharField(max_length=255)
+    columns_to_skip = models.JSONField(default=list, blank=True)
 
     class Meta:
         verbose_name = "Vehicle data import parsing config"
@@ -70,9 +71,7 @@ class VehicleDataImportParsingConfigField(models.Model):
 class VehicaleDataImport(models.Model):
     dealer = models.ForeignKey(
         "inventory.Dealer",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="data_imports",
     )
     source = models.CharField(max_length=50, choices=IMPORT_SOURCE_CHOICES)
