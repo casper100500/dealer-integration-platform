@@ -1,0 +1,4 @@
+vin,plate_number,year,make,model,exterior_color,body_style,fuel_type,engine,transmission,price,currency
+1HGCM82633A004352,ABC1234,2021,honda,Accord,Blue,sedan,gasoline,2.0L I4,automatic,24500,USD
+3VWFE21C04M000001,XYZ9876,2020,volkswagen,Jetta,White,sedan,diesel,2.0L TDI,manual,18900,USD
+5NPE24AF4FH001234,KIA4521,2022,hyundai,Sonata,Black,sedan,hybrid,2.0L Hybrid,automatic,27800,USD

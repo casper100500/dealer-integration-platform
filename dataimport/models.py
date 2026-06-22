@@ -1,22 +1,26 @@
-from enum import Enum
+from __future__ import annotations
+
+from typing import Any
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
-class ImportSource(Enum):
+class ImportSource(models.TextChoices):
     django = ("django", "Django")
     usacar = ("usacar", "USAcar")
 
 
-class ImportStatus(Enum):
+class ImportStatus(models.TextChoices):
     new = ("new", "New")
     in_progress = ("in_progress", "In progress")
     failed = ("failed", "Failed")
     done = ("done", "Done")
 
 
-IMPORT_SOURCE_CHOICES = [item.value for item in ImportSource]
-IMPORT_STATUS_CHOICES = [item.value for item in ImportStatus]
+IMPORT_SOURCE_CHOICES = ImportSource.choices
+IMPORT_STATUS_CHOICES = ImportStatus.choices
 VEHICLE_OBJECT_FIELD_CHOICES = [
     ("vin", "VIN"),
     ("plate_number", "Plate number"),
@@ -75,7 +79,7 @@ class VehicaleDataImport(models.Model):
     status = models.CharField(
         max_length=50,
         choices=IMPORT_STATUS_CHOICES,
-        default=ImportStatus.new.value[0],
+        default=ImportStatus.new,
     )
     skipped = models.BooleanField(default=False)
     file = models.ForeignKey(
@@ -103,7 +107,7 @@ class VehicaleDataImport(models.Model):
     @property
     def parsed(self) -> str:
         if self.records_total == 0:
-            if self.status == ImportStatus.done.value[0]:
+            if self.status == ImportStatus.done:
                 return "100%"
             return "0%"
 
@@ -144,3 +148,17 @@ class VehicaleDataImportWarning(AbstractImportMessage):
         related_name="warnings",
         on_delete=models.CASCADE,
     )
+
+
+@receiver(post_save, sender=VehicaleDataImport)
+def run_vehicle_data_import(
+    sender: type[VehicaleDataImport],
+    instance: VehicaleDataImport,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Start a new vehicle data import after it is created."""
+    if created and instance.status == ImportStatus.new:
+        from .tasks import task_run_vehicle_data_import
+
+        task_run_vehicle_data_import(instance.pk)

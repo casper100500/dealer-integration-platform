@@ -1,0 +1,4 @@
+VIN Code,License Plate,Production Year,Manufacturer,Model Name,Paint Color,Vehicle Type,Fuel,Motor,Transmission Type,Stock Number,Current Price,Currency,Mileage,Dealer Notes,Photo URL
+WAUZZZ8K9DA123456,DEAL001,2019,Audi,A4,Silver,Sedan,Gasoline,2.0 TFSI,Automatic,STK-1001,21900,USD,64200,"Clean local trade with service records",https://example.com/photos/a4.jpg
+JTDKN3DU0A0123456,HYB7788,2018,Toyota,Prius,Green,Hatchback,Hybrid,1.8 Hybrid,CVT,STK-1002,14950,USD,88500,"Extra source columns should be ignored by vehicle parsing",https://example.com/photos/prius.jpg
+WDDGF8AB5EA765432,MBZ4400,2021,Mercedes-Benz,C-Class,Black,Sedan,Gasoline,2.0 Turbo,Automatic,STK-1003,32900,USD,35100,"Uses nonstandard field names for mapping config tests",https://example.com/photos/c-class.jpg
