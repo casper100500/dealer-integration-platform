@@ -6,6 +6,8 @@ For now, this project intentionally starts small: Django, PostgreSQL, and Docker
 
 ## Local Development
 
+Dependencies are managed with Poetry in `pyproject.toml`.
+
 Start the stack:
 
 ```bash
@@ -26,6 +28,18 @@ Run Django management commands through the web service:
 
 ```bash
 docker compose run --rm web python manage.py check
+```
+
+Add a Python dependency:
+
+```bash
+poetry add package-name
+```
+
+After dependencies change, rebuild the Docker image:
+
+```bash
+docker compose build web
 ```
 
 Create a Django superuser:
