@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -37,6 +37,7 @@ VEHICLE_OBJECT_FIELD_CHOICES = [
 
 class VehicleDataImportParsingConfig(models.Model):
     name = models.CharField(max_length=255)
+    columns_to_skip = models.JSONField(default=list, blank=True)
 
     class Meta:
         verbose_name = "Vehicle data import parsing config"
@@ -70,9 +71,7 @@ class VehicleDataImportParsingConfigField(models.Model):
 class VehicaleDataImport(models.Model):
     dealer = models.ForeignKey(
         "inventory.Dealer",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="data_imports",
     )
     source = models.CharField(max_length=50, choices=IMPORT_SOURCE_CHOICES)
@@ -161,4 +160,6 @@ def run_vehicle_data_import(
     if created and instance.status == ImportStatus.new:
         from .tasks import task_run_vehicle_data_import
 
-        task_run_vehicle_data_import(instance.pk)
+        transaction.on_commit(
+            lambda: task_run_vehicle_data_import.delay(instance.pk)
+        )

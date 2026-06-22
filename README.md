@@ -18,6 +18,10 @@ The Django application will be available at:
 
 - `http://localhost:8000/health/`
 
+Vehicle data imports are processed by the Celery worker service. Keep the
+`worker` and `redis` services running with the web service when testing import
+processing locally.
+
 Optional: copy the example environment file if you want to customize local settings:
 
 ```bash
@@ -65,7 +69,9 @@ Then log in at:
 ## Services
 
 - `web`: Django application
+- `worker`: Celery worker for asynchronous import processing
 - `db`: PostgreSQL 18.4
+- `redis`: Celery broker/result backend
 
 ## PostgreSQL
 

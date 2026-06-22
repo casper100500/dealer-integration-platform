@@ -55,10 +55,24 @@ class VehicleBaseLoader(CsvBaseLoader):
         if field_mapping is None:
             field_mapping = self.standard_mapping
 
+        row = self.skip_columns(row)
+
         return {
             object_field: row.get(source_field)
             for source_field, object_field in field_mapping.items()
             if object_field in self.standard_mapping.values()
+        }
+
+    def skip_columns(self, row: CsvRow) -> CsvRow:
+        """Remove source columns configured to be ignored."""
+        parsing_config = self.data_import.parsing_config
+        if parsing_config is None:
+            return row
+
+        return {
+            field_name: value
+            for field_name, value in row.items()
+            if field_name not in parsing_config.columns_to_skip
         }
 
     def validate_row(self, row: CsvRow) -> list[str]:

@@ -1,4 +1,9 @@
+from typing import cast
+
 from django.contrib import admin
+from django.db.models import Count
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 
 from dataimport.models import (
     VehicaleDataImport,
@@ -30,7 +35,7 @@ class VehicleDataImportParsingConfigFieldInline(admin.TabularInline):
 
 @admin.register(VehicleDataImportParsingConfig)
 class VehicleDataImportParsingConfigAdmin(admin.ModelAdmin):
-    list_display = ["id", "name"]
+    list_display = ["name", "columns_to_skip"]
     search_fields = ["name", "fields__custom_field"]
     inlines = [VehicleDataImportParsingConfigFieldInline]
 
@@ -48,6 +53,8 @@ class VehicaleDataImportAdmin(admin.ModelAdmin):
         "records_created",
         "records_updated",
         "records_skipped",
+        "errors_count",
+        "warnings_count",
         "skipped",
         "created_at",
     ]
@@ -64,6 +71,8 @@ class VehicaleDataImportAdmin(admin.ModelAdmin):
         "records_created",
         "records_updated",
         "records_skipped",
+        "errors_count",
+        "warnings_count",
         "started_at",
         "finished_at",
         "parsed",
@@ -74,3 +83,24 @@ class VehicaleDataImportAdmin(admin.ModelAdmin):
         VehicaleDataImportErrorInline,
         VehicaleDataImportWarningInline,
     ]
+
+    def get_queryset(
+        self,
+        request: HttpRequest,
+    ) -> QuerySet[VehicaleDataImport]:
+        queryset = super().get_queryset(request)
+        return cast(
+            QuerySet[VehicaleDataImport],
+            queryset.annotate(
+                errors_count=Count("errors", distinct=True),
+                warnings_count=Count("warnings", distinct=True),
+            ),
+        )
+
+    @admin.display(ordering="errors_count", description="Errors")
+    def errors_count(self, obj: VehicaleDataImport) -> int:
+        return int(getattr(obj, "errors_count", 0))
+
+    @admin.display(ordering="warnings_count", description="Warnings")
+    def warnings_count(self, obj: VehicaleDataImport) -> int:
+        return int(getattr(obj, "warnings_count", 0))
