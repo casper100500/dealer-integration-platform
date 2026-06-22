@@ -10,6 +10,8 @@ ALLOWED_HOSTS = os.environ.get(
 ).split(",")
 
 INSTALLED_APPS = [
+    "Files",
+    "dataimport",
     "inventory",
     "django.contrib.admin",
     "django.contrib.auth",
