@@ -30,6 +30,14 @@ Run Django management commands through the web service:
 docker compose run --rm web python manage.py check
 ```
 
+Run formatting and lint checks:
+
+```bash
+docker compose run --rm web black --check .
+docker compose run --rm web isort --check-only .
+docker compose run --rm web flake8 .
+```
+
 Add a Python dependency:
 
 ```bash
