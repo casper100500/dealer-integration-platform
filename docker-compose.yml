@@ -31,7 +31,7 @@ services:
   db:
     image: postgres:18.4-alpine
     volumes:
-      - ./.postgres_data:/var/lib/postgresql/data
+      - ./.postgres_data:/var/lib/postgresql
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dealer_inventory}
       POSTGRES_USER: ${POSTGRES_USER:-dealer_inventory}

@@ -1,22 +1,70 @@
-from enum import Enum
+from __future__ import annotations
+
+from typing import Any
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
-class ImportSource(Enum):
+class ImportSource(models.TextChoices):
     django = ("django", "Django")
     usacar = ("usacar", "USAcar")
 
 
-class ImportStatus(Enum):
+class ImportStatus(models.TextChoices):
     new = ("new", "New")
     in_progress = ("in_progress", "In progress")
     failed = ("failed", "Failed")
     done = ("done", "Done")
 
 
-IMPORT_SOURCE_CHOICES = [item.value for item in ImportSource]
-IMPORT_STATUS_CHOICES = [item.value for item in ImportStatus]
+IMPORT_SOURCE_CHOICES = ImportSource.choices
+IMPORT_STATUS_CHOICES = ImportStatus.choices
+VEHICLE_OBJECT_FIELD_CHOICES = [
+    ("vin", "VIN"),
+    ("plate_number", "Plate number"),
+    ("year", "Year"),
+    ("make", "Make"),
+    ("model", "Model"),
+    ("exterior_color", "Exterior color"),
+    ("body_style", "Body style"),
+    ("fuel_type", "Fuel type"),
+    ("engine", "Engine"),
+    ("transmission", "Transmission"),
+]
+
+
+class VehicleDataImportParsingConfig(models.Model):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = "Vehicle data import parsing config"
+        verbose_name_plural = "Vehicle data import parsing configs"
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class VehicleDataImportParsingConfigField(models.Model):
+    config = models.ForeignKey(
+        VehicleDataImportParsingConfig,
+        related_name="fields",
+        on_delete=models.CASCADE,
+    )
+    object_field = models.CharField(
+        max_length=50,
+        choices=VEHICLE_OBJECT_FIELD_CHOICES,
+    )
+    custom_field = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = [["config", "object_field"]]
+        verbose_name = "Vehicle data import parsing config field"
+        verbose_name_plural = "Vehicle data import parsing config fields"
+
+    def __str__(self) -> str:
+        return f"{self.get_object_field_display()} <- {self.custom_field}"
 
 
 class VehicaleDataImport(models.Model):
@@ -31,7 +79,7 @@ class VehicaleDataImport(models.Model):
     status = models.CharField(
         max_length=50,
         choices=IMPORT_STATUS_CHOICES,
-        default=ImportStatus.new.value[0],
+        default=ImportStatus.new,
     )
     skipped = models.BooleanField(default=False)
     file = models.ForeignKey(
@@ -39,6 +87,13 @@ class VehicaleDataImport(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+    )
+    parsing_config = models.ForeignKey(
+        VehicleDataImportParsingConfig,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="data_imports",
     )
     records_total = models.PositiveIntegerField(default=0)
     records_created = models.PositiveIntegerField(default=0)
@@ -52,7 +107,7 @@ class VehicaleDataImport(models.Model):
     @property
     def parsed(self) -> str:
         if self.records_total == 0:
-            if self.status == ImportStatus.done.value[0]:
+            if self.status == ImportStatus.done:
                 return "100%"
             return "0%"
 
@@ -93,3 +148,17 @@ class VehicaleDataImportWarning(AbstractImportMessage):
         related_name="warnings",
         on_delete=models.CASCADE,
     )
+
+
+@receiver(post_save, sender=VehicaleDataImport)
+def run_vehicle_data_import(
+    sender: type[VehicaleDataImport],
+    instance: VehicaleDataImport,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Start a new vehicle data import after it is created."""
+    if created and instance.status == ImportStatus.new:
+        from .tasks import task_run_vehicle_data_import
+
+        task_run_vehicle_data_import(instance.pk)

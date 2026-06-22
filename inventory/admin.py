@@ -12,6 +12,13 @@ class DealerAdmin(admin.ModelAdmin):
 
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ["vin", "year", "make", "model", "trim"]
-    list_filter = ["make", "year", "fuel_type"]
-    search_fields = ["vin", "make", "model", "trim"]
+    list_display = [
+        "vin",
+        "plate_number",
+        "year",
+        "make",
+        "model",
+        "exterior_color",
+    ]
+    list_filter = ["make", "year", "body_style", "fuel_type"]
+    search_fields = ["vin", "plate_number", "make", "model"]
