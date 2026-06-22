@@ -17,6 +17,50 @@ class ImportStatus(Enum):
 
 IMPORT_SOURCE_CHOICES = [item.value for item in ImportSource]
 IMPORT_STATUS_CHOICES = [item.value for item in ImportStatus]
+VEHICLE_OBJECT_FIELD_CHOICES = [
+    ("vin", "VIN"),
+    ("plate_number", "Plate number"),
+    ("year", "Year"),
+    ("make", "Make"),
+    ("model", "Model"),
+    ("exterior_color", "Exterior color"),
+    ("body_style", "Body style"),
+    ("fuel_type", "Fuel type"),
+    ("engine", "Engine"),
+    ("transmission", "Transmission"),
+]
+
+
+class VehicleDataImportParsingConfig(models.Model):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = "Vehicle data import parsing config"
+        verbose_name_plural = "Vehicle data import parsing configs"
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class VehicleDataImportParsingConfigField(models.Model):
+    config = models.ForeignKey(
+        VehicleDataImportParsingConfig,
+        related_name="fields",
+        on_delete=models.CASCADE,
+    )
+    object_field = models.CharField(
+        max_length=50,
+        choices=VEHICLE_OBJECT_FIELD_CHOICES,
+    )
+    custom_field = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = [["config", "object_field"]]
+        verbose_name = "Vehicle data import parsing config field"
+        verbose_name_plural = "Vehicle data import parsing config fields"
+
+    def __str__(self) -> str:
+        return f"{self.get_object_field_display()} <- {self.custom_field}"
 
 
 class VehicaleDataImport(models.Model):
@@ -39,6 +83,13 @@ class VehicaleDataImport(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+    )
+    parsing_config = models.ForeignKey(
+        VehicleDataImportParsingConfig,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="data_imports",
     )
     records_total = models.PositiveIntegerField(default=0)
     records_created = models.PositiveIntegerField(default=0)

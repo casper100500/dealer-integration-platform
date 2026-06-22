@@ -4,6 +4,8 @@ from dataimport.models import (
     VehicaleDataImport,
     VehicaleDataImportError,
     VehicaleDataImportWarning,
+    VehicleDataImportParsingConfig,
+    VehicleDataImportParsingConfigField,
 )
 
 
@@ -21,12 +23,25 @@ class VehicaleDataImportWarningInline(admin.TabularInline):
     can_delete = False
 
 
+class VehicleDataImportParsingConfigFieldInline(admin.TabularInline):
+    model = VehicleDataImportParsingConfigField
+    extra = 1
+
+
+@admin.register(VehicleDataImportParsingConfig)
+class VehicleDataImportParsingConfigAdmin(admin.ModelAdmin):
+    list_display = ["id", "name"]
+    search_fields = ["name", "fields__custom_field"]
+    inlines = [VehicleDataImportParsingConfigFieldInline]
+
+
 @admin.register(VehicaleDataImport)
 class VehicaleDataImportAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "dealer",
         "source",
+        "parsing_config",
         "status",
         "parsed",
         "records_total",
@@ -36,8 +51,13 @@ class VehicaleDataImportAdmin(admin.ModelAdmin):
         "skipped",
         "created_at",
     ]
-    list_filter = ["dealer", "source", "status", "skipped"]
-    search_fields = ["dealer__name", "file__original_name", "file__source_url"]
+    list_filter = ["dealer", "source", "parsing_config", "status", "skipped"]
+    search_fields = [
+        "dealer__name",
+        "file__original_name",
+        "file__source_url",
+        "parsing_config__name",
+    ]
     readonly_fields = [
         "skipped",
         "records_total",
