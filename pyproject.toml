@@ -17,6 +17,7 @@ isort = "^8.0.1"
 flake8 = "^7.3.0"
 mypy = "^2.1.0"
 django-stubs = "^6.0.5"
+watchdog = {extras = ["watchmedo"], version = "^6.0.0"}
 
 [tool.black]
 line-length = 79

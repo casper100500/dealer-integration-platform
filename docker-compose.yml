@@ -1,9 +1,19 @@
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command:
+      - watchmedo
+      - auto-restart
+      - --directory=/code
+      - "--pattern=*.py"
+      - --recursive
+      - --
+      - python
+      - manage.py
+      - runserver
+      - 0.0.0.0:8000
     volumes:
-      - .:/app
+      - .:/code
     ports:
       - "8000:8000"
     environment:
