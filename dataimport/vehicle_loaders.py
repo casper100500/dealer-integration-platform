@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from decimal import Decimal, InvalidOperation
 from typing import Any, cast
 
 from django.db import models
 
-from inventory.models import Vehicle
+from inventory.models import CURRENCY_CHOICES, InventoryListing, Vehicle
 
 from .loaders import CsvBaseLoader, CsvRow, FieldMapping
 from .models import (
@@ -30,7 +31,22 @@ class VehicleBaseLoader(CsvBaseLoader):
         "fuel_type": "fuel_type",
         "engine": "engine",
         "transmission": "transmission",
+        "price": "price",
+        "currency": "currency",
     }
+    vehicle_fields = {
+        "vin",
+        "plate_number",
+        "year",
+        "make",
+        "model",
+        "exterior_color",
+        "body_style",
+        "fuel_type",
+        "engine",
+        "transmission",
+    }
+    supported_currencies = {currency for currency, _ in CURRENCY_CHOICES}
 
     def get_field_mapping(self) -> FieldMapping:
         """Use parsing config mapping, or standard field names by default."""
@@ -82,7 +98,7 @@ class VehicleBaseLoader(CsvBaseLoader):
         if not row.get("vin"):
             errors.append("the VIN is required")
 
-        for field_name in set(self.standard_mapping.values()) - {"year"}:
+        for field_name in self.vehicle_fields - {"year"}:
             field = cast(
                 "models.Field[Any, Any]",
                 Vehicle._meta.get_field(field_name),
@@ -95,6 +111,14 @@ class VehicleBaseLoader(CsvBaseLoader):
         if year and not self.is_integer(year):
             errors.append("the year is not a valid integer")
 
+        price = row.get("price")
+        if price and self.to_decimal(price) is None:
+            errors.append("the price is not a valid decimal")
+
+        currency = self.normalize_currency(row.get("currency"))
+        if currency and currency not in self.supported_currencies:
+            errors.append("the currency is not supported")
+
         return errors
 
     def save_row(self, row: CsvRow) -> bool:
@@ -103,11 +127,16 @@ class VehicleBaseLoader(CsvBaseLoader):
         if vin is None:
             raise ValueError("the VIN is required")
 
-        _, created = Vehicle.objects.update_or_create(
+        vehicle, vehicle_created = Vehicle.objects.update_or_create(
             vin=vin,
             defaults=self.build_vehicle_defaults(row),
         )
-        return created
+        _, listing_created = InventoryListing.objects.update_or_create(
+            dealer=self.data_import.dealer,
+            vehicle=vehicle,
+            defaults=self.build_listing_defaults(row),
+        )
+        return vehicle_created or listing_created
 
     def build_vehicle_defaults(self, row: CsvRow) -> dict[str, Any]:
         """Build Vehicle defaults for update_or_create."""
@@ -124,6 +153,13 @@ class VehicleBaseLoader(CsvBaseLoader):
             "transmission": row.get("transmission") or "",
         }
 
+    def build_listing_defaults(self, row: CsvRow) -> dict[str, Any]:
+        """Build dealer-specific listing defaults for update_or_create."""
+        return {
+            "price": self.to_decimal(row.get("price")),
+            "currency": self.normalize_currency(row.get("currency")),
+        }
+
     def is_integer(self, value: str) -> bool:
         """Return whether a CSV value can be converted to an integer."""
         try:
@@ -137,6 +173,22 @@ class VehicleBaseLoader(CsvBaseLoader):
         if value is None or value == "":
             return None
         return int(value)
+
+    def to_decimal(self, value: str | None) -> Decimal | None:
+        """Convert an optional CSV value to a decimal price."""
+        if value is None or value.strip() == "":
+            return None
+
+        try:
+            return Decimal(value.strip().replace(",", ""))
+        except InvalidOperation:
+            return None
+
+    def normalize_currency(self, value: str | None) -> str:
+        """Normalize optional currency codes for storage."""
+        if value is None:
+            return ""
+        return value.strip().upper()
 
 
 class VehicleDjangoLoader(VehicleBaseLoader):
