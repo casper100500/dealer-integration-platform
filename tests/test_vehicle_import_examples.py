@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 import pytest
 from django.core.files import File as DjangoFile
@@ -108,7 +109,7 @@ def test_dealer_examples_repeat_some_vins_across_files() -> None:
 
 @pytest.mark.django_db
 def test_importing_dealer_examples_shares_repeated_vins_between_dealers(
-    settings: object,
+    settings: Any,
     tmp_path: Path,
 ) -> None:
     settings.MEDIA_ROOT = tmp_path
