@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me-in-development}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0}
+      POSTGRES_DB: ${POSTGRES_DB:-dealer_inventory}
+      POSTGRES_USER: ${POSTGRES_USER:-dealer_inventory}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dealer_inventory}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - ./.postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dealer_inventory}
+      POSTGRES_USER: ${POSTGRES_USER:-dealer_inventory}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dealer_inventory}
+    ports:
+      - "5432:5432"
