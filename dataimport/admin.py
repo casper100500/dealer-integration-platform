@@ -25,6 +25,7 @@ class VehicaleDataImportWarningInline(admin.TabularInline):
 class VehicaleDataImportAdmin(admin.ModelAdmin):
     list_display = [
         "id",
+        "dealer",
         "source",
         "status",
         "parsed",
@@ -35,12 +36,20 @@ class VehicaleDataImportAdmin(admin.ModelAdmin):
         "skipped",
         "created_at",
     ]
-    list_filter = ["source", "status", "skipped"]
-    search_fields = ["file__original_name", "file__source_url"]
-    readonly_fields = ["skipped","records_total",
+    list_filter = ["dealer", "source", "status", "skipped"]
+    search_fields = ["dealer__name", "file__original_name", "file__source_url"]
+    readonly_fields = [
+        "skipped",
+        "records_total",
         "records_created",
         "records_updated",
-        "records_skipped","started_at", "finished_at", "parsed", "created_at", "updated_at"]
+        "records_skipped",
+        "started_at",
+        "finished_at",
+        "parsed",
+        "created_at",
+        "updated_at",
+    ]
     inlines = [
         VehicaleDataImportErrorInline,
         VehicaleDataImportWarningInline,

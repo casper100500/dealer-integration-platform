@@ -20,6 +20,13 @@ IMPORT_STATUS_CHOICES = [item.value for item in ImportStatus]
 
 
 class VehicaleDataImport(models.Model):
+    dealer = models.ForeignKey(
+        "inventory.Dealer",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="data_imports",
+    )
     source = models.CharField(max_length=50, choices=IMPORT_SOURCE_CHOICES)
     status = models.CharField(
         max_length=50,
