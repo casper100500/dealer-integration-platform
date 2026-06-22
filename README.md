@@ -28,6 +28,17 @@ Run Django management commands through the web service:
 docker compose run --rm web python manage.py check
 ```
 
+Create a Django superuser:
+
+```bash
+docker compose run --rm web python manage.py migrate
+docker compose run --rm web python manage.py createsuperuser
+```
+
+Then log in at:
+
+- `http://localhost:8000/admin/`
+
 ## Services
 
 - `web`: Django application
