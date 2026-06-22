@@ -65,11 +65,15 @@ Then log in at:
 ## Services
 
 - `web`: Django application
-- `db`: PostgreSQL 16
+- `db`: PostgreSQL 18.4
 
 ## PostgreSQL
 
 The database runs as the `db` service in `docker-compose.yml`.
+
+If you already have local data in `./.postgres_data` from an older
+PostgreSQL major version, dump and restore it before starting the upgraded
+container. PostgreSQL data directories are not reusable across major versions.
 
 Django connects to it using these environment variables:
 
