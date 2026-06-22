@@ -19,6 +19,9 @@ flake8 = "^7.3.0"
 mypy = "^2.1.0"
 django-stubs = "^6.0.5"
 watchdog = {extras = ["watchmedo"], version = "^6.0.0"}
+pytest = "^9.0.2"
+pytest-django = "^4.11.1"
+pytest-xdist = "^3.8.0"
 
 [tool.black]
 line-length = 79
@@ -39,6 +42,10 @@ warn_unused_ignores = true
 
 [tool.django-stubs]
 django_settings_module = "config.settings"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.test_settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
 [build-system]
 requires = ["poetry-core>=1.9.0"]
