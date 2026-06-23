@@ -6,7 +6,7 @@ For now, this project intentionally starts small: Django, PostgreSQL, and Docker
 
 ## Local Development
 
-Dependencies are managed with Poetry in `pyproject.toml`.
+Dependencies are managed with uv in `pyproject.toml` and `uv.lock`.
 
 Start the stack:
 
@@ -46,7 +46,7 @@ docker compose run --rm web mypy .
 Add a Python dependency:
 
 ```bash
-poetry add package-name
+uv add package-name
 ```
 
 After dependencies change, rebuild the Docker image:
