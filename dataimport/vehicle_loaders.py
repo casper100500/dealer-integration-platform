@@ -9,16 +9,16 @@ from inventory.models import CURRENCY_CHOICES, InventoryListing, Vehicle
 
 from .loaders import CsvBaseLoader, CsvRow, FieldMapping
 from .models import (
-    VehicaleDataImportError,
-    VehicaleDataImportWarning,
+    VehicleDataImportError,
+    VehicleDataImportWarning,
 )
 
 
 class VehicleBaseLoader(CsvBaseLoader):
     """Parse CSV rows into standard Vehicle fields and persist vehicles."""
 
-    error_model = VehicaleDataImportError
-    warning_model = VehicaleDataImportWarning
+    error_model = VehicleDataImportError
+    warning_model = VehicleDataImportWarning
     import_name = "Vehicle"
     standard_mapping: FieldMapping = {
         "vin": "vin",
