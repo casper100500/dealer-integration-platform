@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 from django.core.files import File as DjangoFile
 
-from dataimport.models import ImportSource, ImportStatus, VehicaleDataImport
+from dataimport.models import ImportSource, ImportStatus, VehicleDataImport
 from dataimport.vehicle_loaders import VehicleDjangoLoader
 from Files.models import File
 from inventory.models import Dealer, InventoryListing, Vehicle
@@ -38,7 +38,7 @@ def read_example_rows(filename: str) -> list[dict[str, str]]:
 def create_import(
     filename: str,
     dealer: Dealer,
-) -> VehicaleDataImport:
+) -> VehicleDataImport:
     source_path = EXAMPLES_DIR / filename
     stored_file = File.objects.create(
         original_name=filename,
@@ -49,7 +49,7 @@ def create_import(
     with source_path.open("rb") as handle:
         stored_file.file.save(filename, DjangoFile(handle), save=True)
 
-    return VehicaleDataImport.objects.create(
+    return VehicleDataImport.objects.create(
         dealer=dealer,
         source=ImportSource.django,
         status=ImportStatus.in_progress,

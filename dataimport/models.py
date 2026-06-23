@@ -70,7 +70,7 @@ class VehicleDataImportParsingConfigField(models.Model):
         return f"{self.get_object_field_display()} <- {self.custom_field}"
 
 
-class VehicaleDataImport(models.Model):
+class VehicleDataImport(models.Model):
     dealer = models.ForeignKey(
         "inventory.Dealer",
         on_delete=models.PROTECT,
@@ -135,26 +135,26 @@ class AbstractImportMessage(models.Model):
         return self.message
 
 
-class VehicaleDataImportError(AbstractImportMessage):
+class VehicleDataImportError(AbstractImportMessage):
     data_import = models.ForeignKey(
-        VehicaleDataImport,
+        VehicleDataImport,
         related_name="errors",
         on_delete=models.CASCADE,
     )
 
 
-class VehicaleDataImportWarning(AbstractImportMessage):
+class VehicleDataImportWarning(AbstractImportMessage):
     data_import = models.ForeignKey(
-        VehicaleDataImport,
+        VehicleDataImport,
         related_name="warnings",
         on_delete=models.CASCADE,
     )
 
 
-@receiver(post_save, sender=VehicaleDataImport)
+@receiver(post_save, sender=VehicleDataImport)
 def run_vehicle_data_import(
-    sender: type[VehicaleDataImport],
-    instance: VehicaleDataImport,
+    sender: type[VehicleDataImport],
+    instance: VehicleDataImport,
     created: bool,
     **kwargs: Any,
 ) -> None:

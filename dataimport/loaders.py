@@ -6,7 +6,7 @@ from typing import Any, Iterator, TextIO, TypedDict
 
 from django.utils import timezone
 
-from .models import ImportStatus, VehicaleDataImport
+from .models import ImportStatus, VehicleDataImport
 
 PARSED_SAVE_INTERVAL = 100
 
@@ -28,7 +28,7 @@ class AbstractBaseLoader:
     warning_model: Any = None
     import_name = "Data"
 
-    def __init__(self, data_import: VehicaleDataImport) -> None:
+    def __init__(self, data_import: VehicleDataImport) -> None:
         self.data_import = data_import
 
     def run(self) -> None:

@@ -6,23 +6,23 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest
 
 from dataimport.models import (
-    VehicaleDataImport,
-    VehicaleDataImportError,
-    VehicaleDataImportWarning,
+    VehicleDataImport,
+    VehicleDataImportError,
     VehicleDataImportParsingConfig,
     VehicleDataImportParsingConfigField,
+    VehicleDataImportWarning,
 )
 
 
-class VehicaleDataImportErrorInline(admin.TabularInline):
-    model = VehicaleDataImportError
+class VehicleDataImportErrorInline(admin.TabularInline):
+    model = VehicleDataImportError
     extra = 0
     readonly_fields = ["message", "row_number", "raw_data", "created_at"]
     can_delete = False
 
 
-class VehicaleDataImportWarningInline(admin.TabularInline):
-    model = VehicaleDataImportWarning
+class VehicleDataImportWarningInline(admin.TabularInline):
+    model = VehicleDataImportWarning
     extra = 0
     readonly_fields = ["message", "row_number", "raw_data", "created_at"]
     can_delete = False
@@ -40,8 +40,8 @@ class VehicleDataImportParsingConfigAdmin(admin.ModelAdmin):
     inlines = [VehicleDataImportParsingConfigFieldInline]
 
 
-@admin.register(VehicaleDataImport)
-class VehicaleDataImportAdmin(admin.ModelAdmin):
+@admin.register(VehicleDataImport)
+class VehicleDataImportAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "dealer",
@@ -80,17 +80,17 @@ class VehicaleDataImportAdmin(admin.ModelAdmin):
         "updated_at",
     ]
     inlines = [
-        VehicaleDataImportErrorInline,
-        VehicaleDataImportWarningInline,
+        VehicleDataImportErrorInline,
+        VehicleDataImportWarningInline,
     ]
 
     def get_queryset(
         self,
         request: HttpRequest,
-    ) -> QuerySet[VehicaleDataImport]:
+    ) -> QuerySet[VehicleDataImport]:
         queryset = super().get_queryset(request)
         return cast(
-            QuerySet[VehicaleDataImport],
+            QuerySet[VehicleDataImport],
             queryset.annotate(
                 errors_count=Count("errors", distinct=True),
                 warnings_count=Count("warnings", distinct=True),
@@ -98,9 +98,9 @@ class VehicaleDataImportAdmin(admin.ModelAdmin):
         )
 
     @admin.display(ordering="errors_count", description="Errors")
-    def errors_count(self, obj: VehicaleDataImport) -> int:
+    def errors_count(self, obj: VehicleDataImport) -> int:
         return int(getattr(obj, "errors_count", 0))
 
     @admin.display(ordering="warnings_count", description="Warnings")
-    def warnings_count(self, obj: VehicaleDataImport) -> int:
+    def warnings_count(self, obj: VehicleDataImport) -> int:
         return int(getattr(obj, "warnings_count", 0))
