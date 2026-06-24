@@ -17,6 +17,9 @@ docker compose up --build
 The Django application will be available at:
 
 - `http://localhost:8000/health/`
+- `http://localhost:8000/api/dealers/`
+- `http://localhost:8000/api/vehicles/`
+- `http://localhost:8000/swagger/`
 
 Vehicle data imports are processed by the Celery worker service. Keep the
 `worker` and `redis` services running with the web service when testing import

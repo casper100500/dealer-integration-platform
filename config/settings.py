@@ -13,6 +13,9 @@ INSTALLED_APPS = [
     "Files",
     "dataimport",
     "inventory",
+    "rest_framework",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -75,3 +78,23 @@ CELERY_RESULT_BACKEND = os.environ.get(
     CELERY_BROKER_URL,
 )
 CELERY_TASK_IGNORE_RESULT = True
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework.pagination.PageNumberPagination"
+    ),
+    "PAGE_SIZE": 100,
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Dealer inventory REST API",
+    "DESCRIPTION": (
+        "API for dealers, vehicles, and dealer-specific vehicle listings."
+    ),
+    "VERSION": "0.1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+}
