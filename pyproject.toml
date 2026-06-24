@@ -24,6 +24,7 @@ dev = [
     "pytest>=9.0.2,<10.0.0",
     "pytest-django>=4.11.1,<5.0.0",
     "pytest-xdist>=3.8.0,<4.0.0",
+    "djangorestframework-stubs>=3.17.0",
 ]
 
 [tool.uv]
@@ -38,7 +39,9 @@ profile = "black"
 line_length = 79
 
 [tool.mypy]
-plugins = ["mypy_django_plugin.main"]
+plugins = [
+    "mypy_django_plugin.main",
+]
 python_version = "3.14"
 disallow_untyped_defs = true
 check_untyped_defs = true
