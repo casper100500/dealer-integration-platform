@@ -5,7 +5,11 @@ from typing import Any, cast
 
 from django.db import models
 
-from inventory.models import CURRENCY_CHOICES, InventoryListing, Vehicle
+from dealer_platform.inventory.models import (
+    CURRENCY_CHOICES,
+    DealerOffer,
+    Vehicle,
+)
 
 from .loaders import CsvBaseLoader, CsvRow, FieldMapping
 from .models import (
@@ -131,12 +135,12 @@ class VehicleBaseLoader(CsvBaseLoader):
             vin=vin,
             defaults=self.build_vehicle_defaults(row),
         )
-        _, listing_created = InventoryListing.objects.update_or_create(
+        _, offer_created = DealerOffer.objects.update_or_create(
             dealer=self.data_import.dealer,
             vehicle=vehicle,
-            defaults=self.build_listing_defaults(row),
+            defaults=self.build_offer_defaults(row),
         )
-        return vehicle_created or listing_created
+        return vehicle_created or offer_created
 
     def build_vehicle_defaults(self, row: CsvRow) -> dict[str, Any]:
         """Build Vehicle defaults for update_or_create."""
@@ -153,8 +157,8 @@ class VehicleBaseLoader(CsvBaseLoader):
             "transmission": row.get("transmission") or "",
         }
 
-    def build_listing_defaults(self, row: CsvRow) -> dict[str, Any]:
-        """Build dealer-specific listing defaults for update_or_create."""
+    def build_offer_defaults(self, row: CsvRow) -> dict[str, Any]:
+        """Build dealer offer defaults for update_or_create."""
         return {
             "price": self.to_decimal(row.get("price")),
             "currency": self.normalize_currency(row.get("currency")),

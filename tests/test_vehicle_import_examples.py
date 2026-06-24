@@ -8,10 +8,14 @@ from typing import Any
 import pytest
 from django.core.files import File as DjangoFile
 
-from dataimport.models import ImportSource, ImportStatus, VehicleDataImport
-from dataimport.vehicle_loaders import VehicleDjangoLoader
-from Files.models import File
-from inventory.models import Dealer, InventoryListing, Vehicle
+from dealer_platform.dataimport.models import (
+    ImportSource,
+    ImportStatus,
+    VehicleDataImport,
+)
+from dealer_platform.dataimport.vehicle_loaders import VehicleDjangoLoader
+from dealer_platform.files.models import File
+from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
 EXAMPLES_DIR = Path(__file__).resolve().parent.parent / "examples"
 STANDARD_HEADER = [
@@ -137,12 +141,10 @@ def test_importing_dealer_examples_shares_repeated_vins_between_dealers(
         assert data_import.errors.count() == 0
 
     assert Vehicle.objects.count() == 10
-    assert InventoryListing.objects.count() == 15
+    assert DealerOffer.objects.count() == 15
 
     shared_vehicle = Vehicle.objects.get(vin="1HGCM82633A004352")
-    assert shared_vehicle.inventory_listings.count() == 2
+    assert shared_vehicle.dealer_offers.count() == 2
     assert set(
-        shared_vehicle.inventory_listings.values_list(
-            "dealer__name", flat=True
-        )
+        shared_vehicle.dealer_offers.values_list("dealer__name", flat=True)
     ) == {"Northside Motors", "Lakeside Autos"}

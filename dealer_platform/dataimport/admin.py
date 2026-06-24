@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 
-from dataimport.models import (
+from dealer_platform.dataimport.models import (
     VehicleDataImport,
     VehicleDataImportError,
     VehicleDataImportParsingConfig,

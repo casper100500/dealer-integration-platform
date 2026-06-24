@@ -1,4 +1,4 @@
-from dataimport.models import (
+from dealer_platform.dataimport.models import (
     VehicleDataImportParsingConfig,
     VehicleDataImportParsingConfigField,
 )

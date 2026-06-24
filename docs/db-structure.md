@@ -3,7 +3,7 @@
 This PR should focus on the first durable database shape for dealer inventory
 ETL. The goal is to support imports from multiple providers, keep raw source
 records for audit/debugging, normalize vehicles into a stable catalog, and track
-dealer-facing inventory listings over time.
+dealer offers over time.
 
 ## Core Entities
 
@@ -120,9 +120,9 @@ Constraints and indexes:
 - Unique `vin` when present.
 - Index `(make, model, year)`.
 
-### inventory_listings
+### dealer_offers
 
-Represents a vehicle offered by a dealer at a point in time. A listing can
+Represents a vehicle offered by a dealer at a point in time. An offer can
 change price, mileage, status, and source details while still pointing to the
 same normalized vehicle.
 
@@ -134,7 +134,7 @@ Important fields:
 - `data_source_id`
 - `latest_raw_record_id`
 - `stock_number`
-- `listing_url`
+- `offer_url`
 - `condition`
 - `status`
 - `price`
@@ -149,32 +149,32 @@ Important fields:
 Constraints and indexes:
 
 - Unique `(dealer_id, stock_number)` when `stock_number` is present.
-- Unique `(dealer_id, vehicle_id)` for active listings when VIN/vehicle identity
+- Unique `(dealer_id, vehicle_id)` for active offers when VIN/vehicle identity
   is available.
 - Index `(dealer_id, status)`.
 - Index `(vehicle_id)`.
 - Index `(last_seen_at)`.
 
-### listing_snapshots
+### offer_snapshots
 
-Stores observed listing values over time so price/mileage/status history is not
-lost when `inventory_listings` is updated.
+Stores observed offer values over time so price/mileage/status history is not
+lost when `dealer_offers` is updated.
 
 Important fields:
 
 - `id`
-- `inventory_listing_id`
+- `dealer_offer_id`
 - `raw_inventory_record_id`
 - `observed_at`
 - `status`
 - `price`
 - `mileage`
-- `listing_url`
+- `offer_url`
 - `attributes`
 
 Constraints and indexes:
 
-- Index `(inventory_listing_id, observed_at)`.
+- Index `(dealer_offer_id, observed_at)`.
 - Index `(raw_inventory_record_id)`.
 
 ## Suggested Django App Boundary
@@ -187,7 +187,7 @@ Initial model groups:
 
 - Source/import tracking: `DataSource`, `ImportRun`, `RawInventoryRecord`
 - Dealer domain: `Dealer`
-- Vehicle domain: `Vehicle`, `InventoryListing`, `ListingSnapshot`
+- Vehicle domain: `Vehicle`, `DealerOffer`, `OfferSnapshot`
 
 This keeps the early schema simple while leaving room to split import orchestral
 logic into a separate app later if it grows.
@@ -199,15 +199,15 @@ Recommended enums:
 - `ImportRun.status`: `pending`, `running`, `completed`, `completed_with_errors`,
   `failed`
 - `RawInventoryRecord.status`: `pending`, `parsed`, `skipped`, `failed`
-- `InventoryListing.status`: `available`, `sold`, `removed`, `unknown`
-- `InventoryListing.condition`: `new`, `used`, `certified`, `unknown`
+- `DealerOffer.status`: `available`, `sold`, `removed`, `unknown`
+- `DealerOffer.condition`: `new`, `used`, `certified`, `unknown`
 
 ## Design Notes
 
 - Keep raw payloads in `raw_inventory_records.payload` as JSONB so each source
   can be reprocessed when parsing logic improves.
-- Keep mutable latest state in `inventory_listings`, and append historical
-  observations to `listing_snapshots`.
+- Keep mutable latest state in `dealer_offers`, and append historical
+  observations to `offer_snapshots`.
 - Treat `vehicles` as normalized identity and specs, not as dealer inventory.
 - Prefer nullable fields over fake placeholder values for partial source data.
 - Use timestamps on all long-lived domain tables.
@@ -217,8 +217,8 @@ Recommended enums:
 1. Should `Dealer.external_id` be source-specific, or should dealer IDs be
    tracked through a separate mapping table per data source?
 2. Should active duplicate inventory be allowed for the same dealer and vehicle,
-   or should `(dealer, vehicle)` be unique for active listings?
+   or should `(dealer, vehicle)` be unique for active offers?
 3. Do we need image/media tables in the first DB pass, or should images stay as
-   raw payload/listing attributes until the ETL flow proves the need?
+   raw payload/offer attributes until the ETL flow proves the need?
 4. Should vehicle options/features become normalized tables now, or remain JSON
-   attributes on snapshots/listings for the first iteration?
+   attributes on snapshots/offers for the first iteration?

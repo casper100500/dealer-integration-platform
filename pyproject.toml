@@ -9,6 +9,8 @@ dependencies = [
     "django>=6.0.6,<7.0",
     "psycopg[binary]>=3.1,<4.0",
     "celery[redis]>=5.5,<6.0",
+    "djangorestframework>=3.17,<4.0",
+    "drf-spectacular[sidecar]>=0.29,<1.0",
 ]
 
 [dependency-groups]
@@ -22,6 +24,7 @@ dev = [
     "pytest>=9.0.2,<10.0.0",
     "pytest-django>=4.11.1,<5.0.0",
     "pytest-xdist>=3.8.0,<4.0.0",
+    "djangorestframework-stubs>=3.17.0",
 ]
 
 [tool.uv]
@@ -36,7 +39,9 @@ profile = "black"
 line_length = 79
 
 [tool.mypy]
-plugins = ["mypy_django_plugin.main"]
+plugins = [
+    "mypy_django_plugin.main",
+]
 python_version = "3.14"
 disallow_untyped_defs = true
 check_untyped_defs = true
