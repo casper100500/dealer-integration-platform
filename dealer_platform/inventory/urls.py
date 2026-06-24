@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from inventory.views import (
+from dealer_platform.inventory.views import (
     DealerViewSet,
     VehicleDealerOfferView,
     VehicleViewSet,

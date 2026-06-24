@@ -1,4 +1,4 @@
-from inventory.models import Vehicle
+from dealer_platform.inventory.models import Vehicle
 
 deleted_count, deleted_by_model = Vehicle.objects.all().delete()
 

@@ -5,7 +5,11 @@ from typing import Any, cast
 
 from django.db import models
 
-from inventory.models import CURRENCY_CHOICES, DealerOffer, Vehicle
+from dealer_platform.inventory.models import (
+    CURRENCY_CHOICES,
+    DealerOffer,
+    Vehicle,
+)
 
 from .loaders import CsvBaseLoader, CsvRow, FieldMapping
 from .models import (

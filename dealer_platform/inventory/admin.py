@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 
-from inventory.models import Dealer, DealerOffer, Vehicle
+from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
 
 @admin.register(Dealer)

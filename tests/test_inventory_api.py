@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 from rest_framework.test import APIClient
 
-from inventory.models import Dealer, DealerOffer, Vehicle
+from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
 
 @pytest.fixture

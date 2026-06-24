@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from inventory.models import Dealer, DealerOffer, Vehicle
+from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
 
 class DealerSerializer(serializers.ModelSerializer):

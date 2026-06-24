@@ -8,10 +8,14 @@ from typing import Any
 import pytest
 from django.core.files import File as DjangoFile
 
-from dataimport.models import ImportSource, ImportStatus, VehicleDataImport
-from dataimport.vehicle_loaders import VehicleDjangoLoader
-from Files.models import File
-from inventory.models import Dealer, DealerOffer, Vehicle
+from dealer_platform.dataimport.models import (
+    ImportSource,
+    ImportStatus,
+    VehicleDataImport,
+)
+from dealer_platform.dataimport.vehicle_loaders import VehicleDjangoLoader
+from dealer_platform.files.models import File
+from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
 EXAMPLES_DIR = Path(__file__).resolve().parent.parent / "examples"
 STANDARD_HEADER = [

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from Files.models import File
+from dealer_platform.files.models import File
 
 
 @admin.register(File)

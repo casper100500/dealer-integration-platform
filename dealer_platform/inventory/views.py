@@ -9,8 +9,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from inventory.models import Dealer, DealerOffer, Vehicle
-from inventory.serializers import (
+from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
+from dealer_platform.inventory.serializers import (
     DealerOfferSerializer,
     DealerOfferWriteSerializer,
     DealerSerializer,

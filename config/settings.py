@@ -10,9 +10,9 @@ ALLOWED_HOSTS = os.environ.get(
 ).split(",")
 
 INSTALLED_APPS = [
-    "Files",
-    "dataimport",
-    "inventory",
+    "dealer_platform.files.apps.FilesConfig",
+    "dealer_platform.dataimport.apps.DataimportConfig",
+    "dealer_platform.inventory.apps.InventoryConfig",
     "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",
