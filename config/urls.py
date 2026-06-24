@@ -13,7 +13,7 @@ def health_check(request: HttpRequest) -> JsonResponse:
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("inventory.urls")),
+    path("api/v1/", include("inventory.urls")),
     path(
         "swagger/v1/swagger.json",
         SpectacularJSONAPIView.as_view(),

@@ -121,15 +121,15 @@ class Vehicle(models.Model):
         return description or f"Vehicle {self.pk}"
 
 
-class InventoryListing(models.Model):
+class DealerOffer(models.Model):
     dealer = models.ForeignKey(
         Dealer,
-        related_name="inventory_listings",
+        related_name="dealer_offers",
         on_delete=models.PROTECT,
     )
     vehicle = models.ForeignKey(
         Vehicle,
-        related_name="inventory_listings",
+        related_name="dealer_offers",
         on_delete=models.CASCADE,
     )
     price = models.DecimalField(
@@ -150,7 +150,7 @@ class InventoryListing(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["dealer", "vehicle"],
-                name="unique_dealer_vehicle_listing",
+                name="unique_dealer_vehicle_offer",
             ),
         ]
         indexes = [

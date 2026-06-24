@@ -88,10 +88,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Dealer inventory REST API",
-    "DESCRIPTION": (
-        "API for dealers, vehicles, and dealer-specific vehicle listings."
-    ),
+    "TITLE": "Dealer Inventory REST API",
+    "DESCRIPTION": "API for managing dealers, vehicles, and dealer offers.",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_DIST": "SIDECAR",

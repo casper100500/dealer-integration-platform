@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from inventory.models import Dealer, InventoryListing, Vehicle
+from inventory.models import Dealer, DealerOffer, Vehicle
 
 
 class DealerSerializer(serializers.ModelSerializer):
@@ -42,12 +42,12 @@ class VehicleSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "dealer", "created_at", "updated_at"]
 
 
-class InventoryListingSerializer(serializers.ModelSerializer):
+class DealerOfferSerializer(serializers.ModelSerializer):
     dealer = DealerSerializer(read_only=True)
     vehicle = VehicleSerializer(read_only=True)
 
     class Meta:
-        model = InventoryListing
+        model = DealerOffer
         fields = [
             "id",
             "dealer",
@@ -66,7 +66,7 @@ class InventoryListingSerializer(serializers.ModelSerializer):
         ]
 
 
-class InventoryListingWriteSerializer(serializers.ModelSerializer):
+class DealerOfferWriteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = InventoryListing
+        model = DealerOffer
         fields = ["price", "currency"]

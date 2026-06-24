@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 
-from inventory.models import Dealer, InventoryListing, Vehicle
+from inventory.models import Dealer, DealerOffer, Vehicle
 
 
 @admin.register(Dealer)
@@ -12,8 +12,8 @@ class DealerAdmin(admin.ModelAdmin):
     search_fields = ["name", "external_id", "website_url"]
 
 
-class InventoryListingInline(admin.TabularInline):
-    model = InventoryListing
+class DealerOfferInline(admin.TabularInline):
+    model = DealerOffer
     extra = 1
 
 
@@ -29,7 +29,7 @@ class VehicleAdmin(admin.ModelAdmin):
         "dealers",
     ]
     list_filter = [
-        "inventory_listings__dealer",
+        "dealer_offers__dealer",
         "make",
         "year",
         "body_style",
@@ -40,16 +40,16 @@ class VehicleAdmin(admin.ModelAdmin):
         "plate_number",
         "make",
         "model",
-        "inventory_listings__dealer__name",
+        "dealer_offers__dealer__name",
     ]
-    inlines = [InventoryListingInline]
+    inlines = [DealerOfferInline]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Vehicle]:
         queryset = super().get_queryset(request)
-        return queryset.prefetch_related("inventory_listings__dealer")
+        return queryset.prefetch_related("dealer_offers__dealer")
 
     @admin.display(description="Dealers")
     def dealers(self, obj: Vehicle) -> str:
         return ", ".join(
-            listing.dealer.name for listing in obj.inventory_listings.all()
+            offer.dealer.name for offer in obj.dealer_offers.all()
         )

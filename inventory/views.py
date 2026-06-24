@@ -9,11 +9,11 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from inventory.models import Dealer, InventoryListing, Vehicle
+from inventory.models import Dealer, DealerOffer, Vehicle
 from inventory.serializers import (
+    DealerOfferSerializer,
+    DealerOfferWriteSerializer,
     DealerSerializer,
-    InventoryListingSerializer,
-    InventoryListingWriteSerializer,
     VehicleSerializer,
 )
 
@@ -40,17 +40,17 @@ class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.order_by("id")
 
 
-class VehicleDealerListingView(APIView):
-    def get_listing(self, vehicle_id: int, dealer_id: int) -> InventoryListing:
+class VehicleDealerOfferView(APIView):
+    def get_offer(self, vehicle_id: int, dealer_id: int) -> DealerOffer:
         return get_object_or_404(
-            InventoryListing.objects.select_related("dealer", "vehicle"),
+            DealerOffer.objects.select_related("dealer", "vehicle"),
             vehicle_id=vehicle_id,
             dealer_id=dealer_id,
         )
 
     @extend_schema(
-        tags=["Vehicle Listing"],
-        responses=InventoryListingSerializer,
+        tags=["Dealer Offer"],
+        responses=DealerOfferSerializer,
     )
     def get(
         self,
@@ -58,16 +58,16 @@ class VehicleDealerListingView(APIView):
         vehicle_id: int,
         dealer_id: int,
     ) -> Response:
-        listing = self.get_listing(vehicle_id, dealer_id)
-        serializer = InventoryListingSerializer(listing)
+        offer = self.get_offer(vehicle_id, dealer_id)
+        serializer = DealerOfferSerializer(offer)
         return Response(serializer.data)
 
     @extend_schema(
-        tags=["Vehicle Listing"],
-        request=InventoryListingWriteSerializer,
+        tags=["Dealer Offer"],
+        request=DealerOfferWriteSerializer,
         responses={
-            201: InventoryListingSerializer,
-            400: OpenApiResponse(description="Listing already exists."),
+            201: DealerOfferSerializer,
+            400: OpenApiResponse(description="Dealer offer already exists."),
         },
     )
     def post(
@@ -79,33 +79,33 @@ class VehicleDealerListingView(APIView):
         vehicle = get_object_or_404(Vehicle, pk=vehicle_id)
         dealer = get_object_or_404(Dealer, pk=dealer_id)
 
-        if InventoryListing.objects.filter(
+        if DealerOffer.objects.filter(
             vehicle=vehicle,
             dealer=dealer,
         ).exists():
             return Response(
                 {
                     "detail": (
-                        "Inventory listing already exists for this "
+                        "Dealer offer already exists for this "
                         "vehicle and dealer."
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = InventoryListingWriteSerializer(data=request.data)
+        serializer = DealerOfferWriteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        listing = serializer.save(vehicle=vehicle, dealer=dealer)
-        response_serializer = InventoryListingSerializer(listing)
+        offer = serializer.save(vehicle=vehicle, dealer=dealer)
+        response_serializer = DealerOfferSerializer(offer)
         return Response(
             response_serializer.data,
             status=status.HTTP_201_CREATED,
         )
 
     @extend_schema(
-        tags=["Vehicle Listing"],
-        request=InventoryListingWriteSerializer,
-        responses=InventoryListingSerializer,
+        tags=["Dealer Offer"],
+        request=DealerOfferWriteSerializer,
+        responses=DealerOfferSerializer,
     )
     def patch(
         self,
@@ -113,20 +113,20 @@ class VehicleDealerListingView(APIView):
         vehicle_id: int,
         dealer_id: int,
     ) -> Response:
-        listing = self.get_listing(vehicle_id, dealer_id)
-        serializer = InventoryListingWriteSerializer(
-            listing,
+        offer = self.get_offer(vehicle_id, dealer_id)
+        serializer = DealerOfferWriteSerializer(
+            offer,
             data=request.data,
             partial=True,
         )
         serializer.is_valid(raise_exception=True)
-        listing = serializer.save()
-        response_serializer = InventoryListingSerializer(listing)
+        offer = serializer.save()
+        response_serializer = DealerOfferSerializer(offer)
         return Response(response_serializer.data)
 
     @extend_schema(
-        tags=["Vehicle Listing"],
-        responses={204: OpenApiResponse(description="Listing deleted.")},
+        tags=["Dealer Offer"],
+        responses={204: OpenApiResponse(description="Dealer offer deleted.")},
     )
     def delete(
         self,
@@ -134,6 +134,6 @@ class VehicleDealerListingView(APIView):
         vehicle_id: int,
         dealer_id: int,
     ) -> Response:
-        listing = self.get_listing(vehicle_id, dealer_id)
-        listing.delete()
+        offer = self.get_offer(vehicle_id, dealer_id)
+        offer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

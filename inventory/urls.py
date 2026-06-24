@@ -3,19 +3,19 @@ from rest_framework.routers import DefaultRouter
 
 from inventory.views import (
     DealerViewSet,
-    VehicleDealerListingView,
+    VehicleDealerOfferView,
     VehicleViewSet,
 )
 
 router = DefaultRouter()
-router.register("Dealer", DealerViewSet, basename="dealer")
-router.register("Vehicle", VehicleViewSet, basename="vehicle")
+router.register("dealers", DealerViewSet, basename="dealer")
+router.register("vehicles", VehicleViewSet, basename="vehicle")
 
 urlpatterns = [
     path(
-        "Vehicle/<int:vehicle_id>/Dealer/<int:dealer_id>/listing/",
-        VehicleDealerListingView.as_view(),
-        name="vehicle-dealer-listing",
+        "vehicles/<int:vehicle_id>/dealers/<int:dealer_id>/offer/",
+        VehicleDealerOfferView.as_view(),
+        name="vehicle-dealer-offer",
     ),
     *router.urls,
 ]
