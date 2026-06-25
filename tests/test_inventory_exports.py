@@ -5,6 +5,7 @@ from decimal import Decimal
 import pytest
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory
+from django.utils import timezone
 from import_export.formats import base_formats
 from import_export.forms import ExportForm
 
@@ -120,8 +121,13 @@ def test_vehicle_admin_passes_selected_dealer_to_export_resource() -> None:
 @pytest.mark.django_db
 def test_vehicle_admin_export_filename_includes_dealer_name(
     dealer: Dealer,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Verify vehicle export filenames include the selected dealer name."""
+    """Verify vehicle export filenames include dealer name and datetime."""
+    monkeypatch.setattr(
+        "dealer_platform.inventory.admin.timezone.now",
+        lambda: timezone.datetime(2026, 6, 25, 11, 2, 3, tzinfo=timezone.UTC),
+    )
     request = RequestFactory().get(
         "/admin/inventory/vehicle/export/",
         {DEALER_EXPORT_FILTER_PARAMETER: str(dealer.id)},
@@ -134,4 +140,4 @@ def test_vehicle_admin_export_filename_includes_dealer_name(
         base_formats.CSV(),
     )
 
-    assert filename == "vehicle_export_northside-motors.csv"
+    assert filename == "vehicle_export_northside-motors_20260625_110203.csv"

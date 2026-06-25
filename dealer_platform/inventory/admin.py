@@ -3,11 +3,13 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.http.response import HttpResponseBase, HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 from import_export.admin import ExportMixin
 from import_export.formats.base_formats import Format
 from import_export.forms import ExportForm
 
+from dealer_platform.datetime_utils import get_local_datetime
 from dealer_platform.inventory.export_resources import (
     DealerExportResource,
     VehicleExportResource,
@@ -100,7 +102,7 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
         queryset: QuerySet[Vehicle],
         file_format: Format,
     ) -> str:
-        """Return a vehicle export filename that includes the dealer name."""
+        """Return a vehicle export filename with dealer name and datetime."""
         dealer_name = self.get_selected_dealer_name(request)
         if dealer_name is None:
             return super().get_export_filename(
@@ -110,7 +112,11 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
             )
 
         dealer_slug = slugify(dealer_name) or "dealer"
-        return f"vehicle_export_{dealer_slug}.{file_format.get_extension()}"
+        export_datetime = get_local_datetime(timezone.now())
+        return (
+            f"vehicle_export_{dealer_slug}_{export_datetime}."
+            f"{file_format.get_extension()}"
+        )
 
     def get_selected_dealer_id(self, request: HttpRequest) -> int | None:
         """Return the selected dealer filter value from the admin request."""
