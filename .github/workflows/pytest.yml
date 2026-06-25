@@ -18,5 +18,8 @@ jobs:
       - name: Build web image
         run: docker compose build web
 
+      - name: Start test services
+        run: docker compose up --detach --wait db redis
+
       - name: Run pytest
-        run: docker compose run --rm web pytest tests/test_vehicle_import_examples.py -n0
+        run: docker compose run --rm --no-deps web pytest tests/test_vehicle_import_examples.py -n0

@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.contrib import admin, messages
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
@@ -76,7 +78,7 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
                 )
             )
 
-        return super().export_action(request)
+        return cast(HttpResponseBase, super().export_action(request))
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Vehicle]:
         """Prefetch dealer offers for vehicle admin list and export usage."""
@@ -94,7 +96,7 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
             **kwargs,
         )
         resource_kwargs["dealer_id"] = self.get_selected_dealer_id(request)
-        return resource_kwargs
+        return cast(dict[str, object], resource_kwargs)
 
     def get_export_filename(
         self,
@@ -105,10 +107,13 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
         """Return a vehicle export filename with dealer name and datetime."""
         dealer_name = self.get_selected_dealer_name(request)
         if dealer_name is None:
-            return super().get_export_filename(
-                request,
-                queryset,
-                file_format,
+            return cast(
+                str,
+                super().get_export_filename(
+                    request,
+                    queryset,
+                    file_format,
+                ),
             )
 
         dealer_slug = slugify(dealer_name) or "dealer"
@@ -135,7 +140,7 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
         if dealer_id is None:
             return None
 
-        return (
+        dealer_name = (
             Dealer.objects.filter(id=dealer_id)
             .values_list(
                 "name",
@@ -143,6 +148,7 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
             )
             .first()
         )
+        return cast(str | None, dealer_name)
 
     @admin.display(description="Dealers")
     def dealers(self, obj: Vehicle) -> str:

@@ -19,13 +19,13 @@ jobs:
         run: docker compose build web
 
       - name: Check formatting with Black
-        run: docker compose run --rm web black --check .
+        run: docker compose run --rm --no-deps web black --check .
 
       - name: Check import sorting with isort
-        run: docker compose run --rm web isort --check-only .
+        run: docker compose run --rm --no-deps web isort --check-only .
 
       - name: Lint with flake8
-        run: docker compose run --rm web flake8 .
+        run: docker compose run --rm --no-deps web flake8 .
 
       - name: Type check with mypy
-        run: docker compose run --rm web mypy .
+        run: docker compose run --rm --no-deps web mypy .

@@ -6,12 +6,12 @@ exports scoped to a selected dealer and formatted for vehicle data import.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory
-from django.utils import timezone
 from import_export.formats import base_formats
 from import_export.forms import ExportForm
 
@@ -144,14 +144,14 @@ class TestVehicleExport:
         """Verify vehicle export filenames include dealer name and datetime."""
         monkeypatch.setattr(
             "dealer_platform.inventory.admin.timezone.now",
-            lambda: timezone.datetime(
+            lambda: datetime(
                 2026,
                 6,
                 25,
                 11,
                 2,
                 3,
-                tzinfo=timezone.UTC,
+                tzinfo=UTC,
             ),
         )
         request = RequestFactory().get(

@@ -6,6 +6,6 @@ from celery import Celery  # type: ignore[import-untyped]
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-app = Celery("dealer_inventory_etl")
+app = Celery("dealer_integration_platform")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
