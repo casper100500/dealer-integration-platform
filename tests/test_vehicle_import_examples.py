@@ -1,3 +1,9 @@
+"""Tests for sample vehicle import files and import behavior.
+
+This module verifies example CSV file shapes and confirms that importing
+multiple dealer files shares repeated VINs while preserving dealer offers.
+"""
+
 from __future__ import annotations
 
 import csv
@@ -35,6 +41,7 @@ STANDARD_HEADER = [
 
 
 def read_example_rows(filename: str) -> list[dict[str, str]]:
+    """Read rows from an example vehicle import CSV file."""
     with (EXAMPLES_DIR / filename).open(newline="") as handle:
         return list(csv.DictReader(handle))
 
@@ -43,6 +50,7 @@ def create_import(
     filename: str,
     dealer: Dealer,
 ) -> VehicleDataImport:
+    """Create a vehicle data import record backed by an example file."""
     source_path = EXAMPLES_DIR / filename
     stored_file = File.objects.create(
         original_name=filename,
@@ -74,6 +82,7 @@ def test_standard_example_files_have_expected_shape(
     filename: str,
     expected_rows: int,
 ) -> None:
+    """Verify standard example files use the expected CSV shape."""
     rows = read_example_rows(filename)
 
     assert len(rows) == expected_rows
@@ -84,6 +93,7 @@ def test_standard_example_files_have_expected_shape(
 
 
 def test_random_2500_row_example_has_unique_vins() -> None:
+    """Verify the large random example file contains unique VINs."""
     rows = read_example_rows("vehicle_import_large_2,5k_records.csv")
     vins = [row["vin"] for row in rows]
 
@@ -92,6 +102,7 @@ def test_random_2500_row_example_has_unique_vins() -> None:
 
 
 def test_dealer_examples_repeat_some_vins_across_files() -> None:
+    """Verify dealer examples intentionally share selected VINs."""
     vins = Counter(
         row["vin"]
         for filename in [
@@ -116,6 +127,7 @@ def test_importing_dealer_examples_shares_repeated_vins_between_dealers(
     settings: Any,
     tmp_path: Path,
 ) -> None:
+    """Verify importing dealer examples shares vehicles and keeps offers."""
     settings.MEDIA_ROOT = tmp_path
     dealers = [
         Dealer.objects.create(name="Northside Motors"),
