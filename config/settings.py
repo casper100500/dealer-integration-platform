@@ -55,11 +55,11 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "dealer_integration"),
-        "USER": os.environ.get("POSTGRES_USER", "dealer_integration"),
+        "NAME": os.environ.get("POSTGRES_DB", "postgres"),
+        "USER": os.environ.get("POSTGRES_USER", "postgres"),
         "PASSWORD": os.environ.get(
             "POSTGRES_PASSWORD",
-            "dealer_integration",
+            "postgres",
         ),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),

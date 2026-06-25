@@ -127,26 +127,22 @@ After creating a superuser, log in at:
 ## PostgreSQL
 
 The database runs as the `db` service in `docker-compose.yml` and stores data
-in the Docker-managed `postgres_data` volume.
+in the bind-mounted `./.postgres_data` directory.
 
-If Postgres rejects the default local credentials, recreate the development
-database volume after backing up anything you need to keep:
+If Postgres rejects the default local credentials, reset only the existing
+development role password without deleting database files:
 
 ```bash
-docker compose down --volumes
-docker compose up --build
+docker compose exec db psql -U postgres -d postgres \
+  -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 ```
-
-Older checkouts used a bind-mounted `./.postgres_data` directory. That
-directory is ignored by the current Compose setup; dump and restore it manually
-if you need data from an older local database.
 
 Django connects to it using these environment variables:
 
 ```text
-POSTGRES_DB=dealer_integration
-POSTGRES_USER=dealer_integration
-POSTGRES_PASSWORD=dealer_integration
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
 ```
