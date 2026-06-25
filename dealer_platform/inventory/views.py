@@ -23,6 +23,8 @@ from dealer_platform.inventory.serializers import (
     retrieve=extend_schema(tags=["Dealer"]),
 )
 class DealerViewSet(viewsets.ReadOnlyModelViewSet):
+    """Expose read-only dealer endpoints."""
+
     serializer_class = DealerSerializer
     queryset = Dealer.objects.order_by("id")
 
@@ -36,12 +38,17 @@ class DealerViewSet(viewsets.ReadOnlyModelViewSet):
     destroy=extend_schema(tags=["Vehicle"]),
 )
 class VehicleViewSet(viewsets.ModelViewSet):
+    """Expose vehicle CRUD endpoints."""
+
     serializer_class = VehicleSerializer
     queryset = Vehicle.objects.order_by("id")
 
 
 class VehicleDealerOfferView(APIView):
+    """Manage a dealer offer for a specific vehicle and dealer."""
+
     def get_offer(self, vehicle_id: int, dealer_id: int) -> DealerOffer:
+        """Return the dealer offer or raise a 404 response."""
         return get_object_or_404(
             DealerOffer.objects.select_related("dealer", "vehicle"),
             vehicle_id=vehicle_id,
@@ -58,6 +65,7 @@ class VehicleDealerOfferView(APIView):
         vehicle_id: int,
         dealer_id: int,
     ) -> Response:
+        """Return the dealer offer for the vehicle and dealer."""
         offer = self.get_offer(vehicle_id, dealer_id)
         serializer = DealerOfferSerializer(offer)
         return Response(serializer.data)
@@ -76,6 +84,7 @@ class VehicleDealerOfferView(APIView):
         vehicle_id: int,
         dealer_id: int,
     ) -> Response:
+        """Create the dealer offer for the vehicle and dealer."""
         vehicle = get_object_or_404(Vehicle, pk=vehicle_id)
         dealer = get_object_or_404(Dealer, pk=dealer_id)
 
@@ -113,6 +122,7 @@ class VehicleDealerOfferView(APIView):
         vehicle_id: int,
         dealer_id: int,
     ) -> Response:
+        """Partially update the dealer offer for the vehicle and dealer."""
         offer = self.get_offer(vehicle_id, dealer_id)
         serializer = DealerOfferWriteSerializer(
             offer,
@@ -134,6 +144,7 @@ class VehicleDealerOfferView(APIView):
         vehicle_id: int,
         dealer_id: int,
     ) -> Response:
+        """Delete the dealer offer for the vehicle and dealer."""
         offer = self.get_offer(vehicle_id, dealer_id)
         offer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
