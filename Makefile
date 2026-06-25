@@ -10,10 +10,11 @@ superuser:
 	docker compose run --rm web python manage.py createsuperuser
 
 test:
-	docker compose run --rm web pytest
+	docker compose up --detach --wait db redis
+	docker compose run --rm --no-deps web pytest
 
 lint:
-	docker compose run --rm web black --check .
-	docker compose run --rm web isort --check-only .
-	docker compose run --rm web flake8 .
-	docker compose run --rm web mypy .
+	docker compose run --rm --no-deps web black --check .
+	docker compose run --rm --no-deps web isort --check-only .
+	docker compose run --rm --no-deps web flake8 .
+	docker compose run --rm --no-deps web mypy .
