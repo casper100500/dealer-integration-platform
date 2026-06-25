@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import Any
 
 from import_export import fields, resources
 
@@ -38,11 +39,11 @@ class VehicleExportResource(resources.ModelResource):
         fields = VEHICLE_EXPORT_FIELDS
         export_order = VEHICLE_EXPORT_FIELDS
 
-    def __init__(self, **kwargs: object) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the vehicle export resource for a selected dealer."""
         dealer_id = kwargs.pop("dealer_id", None)
         super().__init__(**kwargs)
-        self.dealer_id = int(dealer_id) if dealer_id is not None else None
+        self.dealer_id = int(str(dealer_id)) if dealer_id is not None else None
 
     def get_dealer_offer(self, vehicle: Vehicle) -> DealerOffer | None:
         """Return the offer for the dealer selected in the admin filter."""
