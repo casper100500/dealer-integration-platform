@@ -1,10 +1,11 @@
-from django.contrib import admin
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.http.response import HttpResponseBase, HttpResponseRedirect
 from django.urls import reverse
+from django.utils.text import slugify
 from import_export.admin import ExportMixin
+from import_export.formats.base_formats import Format
 from import_export.forms import ExportForm
 
 from dealer_platform.inventory.export_resources import (
@@ -13,7 +14,7 @@ from dealer_platform.inventory.export_resources import (
 )
 from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
-DEALER_FILTER_PARAMETER = "dealer_offers__dealer__id__exact"
+DEALER_EXPORT_FILTER_PARAMETER = "dealer_offers__dealer__id__exact"
 
 
 @admin.register(Dealer)
@@ -93,9 +94,27 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
         resource_kwargs["dealer_id"] = self.get_selected_dealer_id(request)
         return resource_kwargs
 
+    def get_export_filename(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Vehicle],
+        file_format: Format,
+    ) -> str:
+        """Return a vehicle export filename that includes the dealer name."""
+        dealer_name = self.get_selected_dealer_name(request)
+        if dealer_name is None:
+            return super().get_export_filename(
+                request,
+                queryset,
+                file_format,
+            )
+
+        dealer_slug = slugify(dealer_name) or "dealer"
+        return f"vehicle_export_{dealer_slug}.{file_format.get_extension()}"
+
     def get_selected_dealer_id(self, request: HttpRequest) -> int | None:
         """Return the selected dealer filter value from the admin request."""
-        dealer_id = request.GET.get(DEALER_FILTER_PARAMETER)
+        dealer_id = request.GET.get(DEALER_EXPORT_FILTER_PARAMETER)
         if dealer_id is None:
             return None
 
@@ -103,6 +122,21 @@ class VehicleAdmin(ExportMixin, admin.ModelAdmin):
             return int(dealer_id)
         except ValueError:
             return None
+
+    def get_selected_dealer_name(self, request: HttpRequest) -> str | None:
+        """Return the selected dealer name from the admin request filter."""
+        dealer_id = self.get_selected_dealer_id(request)
+        if dealer_id is None:
+            return None
+
+        return (
+            Dealer.objects.filter(id=dealer_id)
+            .values_list(
+                "name",
+                flat=True,
+            )
+            .first()
+        )
 
     @admin.display(description="Dealers")
     def dealers(self, obj: Vehicle) -> str:

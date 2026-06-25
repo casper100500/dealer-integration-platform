@@ -5,16 +5,17 @@ from decimal import Decimal
 import pytest
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory
+from import_export.formats import base_formats
 from import_export.forms import ExportForm
 
 from dealer_platform.inventory.admin import (
-    DEALER_FILTER_PARAMETER,
+    DEALER_EXPORT_FILTER_PARAMETER,
     DealerAdmin,
     VehicleAdmin,
 )
 from dealer_platform.inventory.export_resources import (
-    DealerExportResource,
     VEHICLE_EXPORT_FIELDS,
+    DealerExportResource,
     VehicleExportResource,
 )
 from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
@@ -57,9 +58,7 @@ def test_dealer_export_resource_exports_dealer_data(dealer: Dealer) -> None:
     }
     assert dataset.dict[0]["name"] == "Northside Motors"
     assert dataset.dict[0]["external_id"] == "northside"
-    assert dataset.dict[0]["website_url"] == (
-        "https://northside.example.com"
-    )
+    assert dataset.dict[0]["website_url"] == ("https://northside.example.com")
 
 
 def test_export_admins_do_not_show_field_selection() -> None:
@@ -101,6 +100,7 @@ def test_vehicle_export_resource_matches_import_standard_for_selected_dealer(
 
     assert dataset.headers == list(VEHICLE_EXPORT_FIELDS)
     assert dataset.dict[0]["vin"] == "1HGCM82633A004352"
+    assert dataset.dict[0]["dealer_id"] == str(dealer.id)
     assert dataset.dict[0]["price"] == "21999.00"
     assert dataset.dict[0]["currency"] == "USD"
 
@@ -109,9 +109,29 @@ def test_vehicle_admin_passes_selected_dealer_to_export_resource() -> None:
     """Verify the dealer changelist filter is passed to the export resource."""
     request = RequestFactory().get(
         "/admin/inventory/vehicle/export/",
-        {DEALER_FILTER_PARAMETER: "42"},
+        {DEALER_EXPORT_FILTER_PARAMETER: "42"},
     )
     admin = VehicleAdmin(Vehicle, AdminSite())
 
     assert admin.get_selected_dealer_id(request) == 42
     assert admin.get_export_resource_kwargs(request)["dealer_id"] == 42
+
+
+@pytest.mark.django_db
+def test_vehicle_admin_export_filename_includes_dealer_name(
+    dealer: Dealer,
+) -> None:
+    """Verify vehicle export filenames include the selected dealer name."""
+    request = RequestFactory().get(
+        "/admin/inventory/vehicle/export/",
+        {DEALER_EXPORT_FILTER_PARAMETER: str(dealer.id)},
+    )
+    admin = VehicleAdmin(Vehicle, AdminSite())
+
+    filename = admin.get_export_filename(
+        request,
+        Vehicle.objects.none(),
+        base_formats.CSV(),
+    )
+
+    assert filename == "vehicle_export_northside-motors.csv"

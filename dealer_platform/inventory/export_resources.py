@@ -17,6 +17,7 @@ VEHICLE_EXPORT_FIELDS = (
     "fuel_type",
     "engine",
     "transmission",
+    "dealer_id",
     "price",
     "currency",
 )
@@ -28,6 +29,7 @@ class DealerExportResource(resources.ModelResource):
 
 
 class VehicleExportResource(resources.ModelResource):
+    dealer_id = fields.Field(column_name="dealer_id")
     price = fields.Field(column_name="price")
     currency = fields.Field(column_name="currency")
 
@@ -52,6 +54,13 @@ class VehicleExportResource(resources.ModelResource):
                 return offer
 
         return None
+
+    def dehydrate_dealer_id(self, vehicle: Vehicle) -> str:
+        """Export the selected dealer ID for the vehicle."""
+        if self.get_dealer_offer(vehicle) is None:
+            return ""
+
+        return str(self.dealer_id)
 
     def dehydrate_price(self, vehicle: Vehicle) -> str:
         """Export the selected dealer offer price for the vehicle."""
