@@ -13,6 +13,7 @@ INSTALLED_APPS = [
     "dealer_platform.files.apps.FilesConfig",
     "dealer_platform.dataimport.apps.DataimportConfig",
     "dealer_platform.inventory.apps.InventoryConfig",
+    "import_export",
     "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",
