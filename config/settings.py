@@ -55,9 +55,12 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "dealer_inventory"),
-        "USER": os.environ.get("POSTGRES_USER", "dealer_inventory"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "dealer_inventory"),
+        "NAME": os.environ.get("POSTGRES_DB", "dealer_integration"),
+        "USER": os.environ.get("POSTGRES_USER", "dealer_integration"),
+        "PASSWORD": os.environ.get(
+            "POSTGRES_PASSWORD",
+            "dealer_integration",
+        ),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }

@@ -1,7 +1,7 @@
 [project]
-name = "dealer-inventory-etl"
+name = "dealer-integration-platform"
 version = "0.1.0"
-description = "Django service for dealer inventory ETL."
+description = "Django service for dealer data integrations."
 authors = [{ name = "Mykola GORBAN" }]
 readme = "README.md"
 requires-python = ">=3.14,<4.0"
