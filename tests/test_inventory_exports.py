@@ -77,7 +77,9 @@ class TestExportAdmin:
     """Tests for shared Django admin export configuration."""
 
     def test_admins_do_not_show_field_selection(self) -> None:
-        """Verify admin export forms do not include field-selection controls."""
+        """Verify admin export forms do not include field-selection
+        controls.
+        """
         assert DealerAdmin.export_form_class is ExportForm
         assert VehicleAdmin.export_form_class is ExportForm
 

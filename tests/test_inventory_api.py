@@ -83,7 +83,7 @@ class TestVehicleAPI:
 
     @pytest.mark.django_db
     def test_vehicle_api_crud(self, api_client: APIClient) -> None:
-        """Verify vehicle endpoints support create, read, update, and delete."""
+        """Verify vehicle endpoints support CRUD."""
         create_response = api_client.post(
             "/api/v1/vehicles/",
             {
