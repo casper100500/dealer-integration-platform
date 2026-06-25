@@ -55,11 +55,11 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "dealer_integration"),
-        "USER": os.environ.get("POSTGRES_USER", "dealer_integration"),
+        "NAME": os.environ.get("POSTGRES_DB", "postgres"),
+        "USER": os.environ.get("POSTGRES_USER", "postgres"),
         "PASSWORD": os.environ.get(
             "POSTGRES_PASSWORD",
-            "dealer_integration",
+            "postgres",
         ),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
@@ -84,6 +84,12 @@ CELERY_RESULT_BACKEND = os.environ.get(
 CELERY_TASK_IGNORE_RESULT = True
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": (
         "rest_framework.pagination.PageNumberPagination"
@@ -92,7 +98,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Dealer Inventory REST API",
+    "TITLE": "Dealer Platform REST API",
     "DESCRIPTION": "API for managing dealers, vehicles, and dealer offers.",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,

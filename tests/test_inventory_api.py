@@ -7,17 +7,39 @@ dealer offer operations exposed through the API.
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any
+from typing import Any, TypeAlias
 
 import pytest
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from rest_framework.test import APIClient
 
 from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
+UserModel: TypeAlias = type[AbstractUser]
+
 
 @pytest.fixture
-def api_client() -> APIClient:
-    """Create an API client for inventory endpoint tests."""
+def user_model() -> UserModel:
+    """Return the configured Django user model."""
+    return get_user_model()
+
+
+@pytest.fixture
+def api_client(user_model: UserModel) -> APIClient:
+    """Create an authenticated API client for inventory endpoint tests."""
+    user = user_model.objects.create_user(
+        username="api-user",
+        password="correct-password",
+    )
+    client = APIClient()
+    client.force_authenticate(user=user)
+    return client
+
+
+@pytest.fixture
+def anonymous_api_client() -> APIClient:
+    """Create an unauthenticated API client for auth behavior tests."""
     return APIClient()
 
 
@@ -57,6 +79,16 @@ class TestDealerAPI:
     """Tests for dealer REST API behavior."""
 
     @pytest.mark.django_db
+    def test_dealers_api_requires_authentication(
+        self,
+        anonymous_api_client: APIClient,
+    ) -> None:
+        """Verify dealer endpoints reject unauthenticated requests."""
+        response = anonymous_api_client.get("/api/v1/dealers/")
+
+        assert response.status_code == 401
+
+    @pytest.mark.django_db
     def test_dealers_api_is_read_only(
         self,
         api_client: APIClient,
@@ -80,6 +112,16 @@ class TestDealerAPI:
 
 class TestVehicleAPI:
     """Tests for vehicle REST API behavior."""
+
+    @pytest.mark.django_db
+    def test_vehicle_api_requires_authentication(
+        self,
+        anonymous_api_client: APIClient,
+    ) -> None:
+        """Verify vehicle endpoints reject unauthenticated requests."""
+        response = anonymous_api_client.get("/api/v1/vehicles/")
+
+        assert response.status_code == 401
 
     @pytest.mark.django_db
     def test_vehicle_api_crud(self, api_client: APIClient) -> None:
@@ -125,6 +167,20 @@ class TestVehicleAPI:
 
 class TestVehicleDealerOfferAPI:
     """Tests for vehicle dealer offer REST API behavior."""
+
+    @pytest.mark.django_db
+    def test_vehicle_dealer_offer_api_requires_authentication(
+        self,
+        anonymous_api_client: APIClient,
+        dealer: Dealer,
+        vehicle: Vehicle,
+    ) -> None:
+        """Verify dealer offer endpoints reject unauthenticated requests."""
+        response = anonymous_api_client.get(
+            f"/api/v1/vehicles/{vehicle.pk}/dealers/{dealer.pk}/offer/",
+        )
+
+        assert response.status_code == 401
 
     @pytest.mark.django_db
     def test_vehicle_dealer_offer_api(
@@ -204,3 +260,69 @@ class TestVehicleDealerOfferAPI:
 
         assert response.status_code == 201
         assert DealerOffer.objects.get().price == Decimal("21999.00")
+
+
+class TestJWTAuthAPI:
+    """Tests for JWT authentication endpoints."""
+
+    @pytest.mark.django_db
+    def test_jwt_token_lifecycle(
+        self,
+        anonymous_api_client: APIClient,
+        user_model: UserModel,
+    ) -> None:
+        """Verify users can obtain, verify, and refresh JWT tokens."""
+        user_model.objects.create_user(
+            username="jwt-user",
+            password="correct-password",
+        )
+
+        token_response = anonymous_api_client.post(
+            "/api/v1/auth/token/",
+            {
+                "username": "jwt-user",
+                "password": "correct-password",
+            },
+            format="json",
+        )
+        tokens = token_response.json()
+        verify_response = anonymous_api_client.post(
+            "/api/v1/auth/token/verify/",
+            {"token": tokens["access"]},
+            format="json",
+        )
+        refresh_response = anonymous_api_client.post(
+            "/api/v1/auth/token/refresh/",
+            {"refresh": tokens["refresh"]},
+            format="json",
+        )
+
+        assert token_response.status_code == 200
+        assert tokens["access"]
+        assert tokens["refresh"]
+        assert verify_response.status_code == 200
+        assert refresh_response.status_code == 200
+        assert refresh_response.json()["access"]
+
+    @pytest.mark.django_db
+    def test_jwt_token_rejects_invalid_credentials(
+        self,
+        anonymous_api_client: APIClient,
+        user_model: UserModel,
+    ) -> None:
+        """Verify token creation rejects invalid credentials."""
+        user_model.objects.create_user(
+            username="jwt-user",
+            password="correct-password",
+        )
+
+        response = anonymous_api_client.post(
+            "/api/v1/auth/token/",
+            {
+                "username": "jwt-user",
+                "password": "wrong-password",
+            },
+            format="json",
+        )
+
+        assert response.status_code == 401

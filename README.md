@@ -38,9 +38,28 @@ make up
 The Django application will be available at:
 
 - `http://localhost:8000/health/`
+- `http://localhost:8000/api/v1/auth/token/`
+- `http://localhost:8000/api/v1/auth/token/refresh/`
+- `http://localhost:8000/api/v1/auth/token/verify/`
 - `http://localhost:8000/api/v1/dealers/`
 - `http://localhost:8000/api/v1/vehicles/`
 - `http://localhost:8000/swagger/`
+
+Inventory API endpoints require JWT authentication. Create a Django user, then
+request an access and refresh token pair:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/token/ \
+  -H "Content-Type: application/json" \
+  -d '{"username":"your-username","password":"your-password"}'
+```
+
+Send authenticated inventory requests with the access token:
+
+```bash
+curl http://localhost:8000/api/v1/vehicles/ \
+  -H "Authorization: Bearer your-access-token"
+```
 
 Vehicle data imports are processed by the Celery worker service. Keep the
 `celery` and `redis` services running with the web service when testing import
@@ -107,18 +126,23 @@ After creating a superuser, log in at:
 
 ## PostgreSQL
 
-The database runs as the `db` service in `docker-compose.yml`.
+The database runs as the `db` service in `docker-compose.yml` and stores data
+in the bind-mounted `./.postgres_data` directory.
 
-If you already have local data in `./.postgres_data` from an older
-PostgreSQL major version, dump and restore it before starting the upgraded
-container. PostgreSQL data directories are not reusable across major versions.
+If Postgres rejects the default local credentials, reset only the existing
+development role password without deleting database files:
+
+```bash
+docker compose exec db psql -U postgres -d postgres \
+  -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+```
 
 Django connects to it using these environment variables:
 
 ```text
-POSTGRES_DB=dealer_integration
-POSTGRES_USER=dealer_integration
-POSTGRES_PASSWORD=dealer_integration
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
 ```

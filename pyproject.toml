@@ -12,6 +12,7 @@ dependencies = [
     "djangorestframework>=3.17,<4.0",
     "drf-spectacular[sidecar]>=0.29,<1.0",
     "django-import-export>=4.4.1",
+    "djangorestframework-simplejwt>=5.5.1,<6.0",
 ]
 
 [dependency-groups]
