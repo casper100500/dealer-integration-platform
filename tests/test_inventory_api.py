@@ -326,3 +326,22 @@ class TestJWTAuthAPI:
         )
 
         assert response.status_code == 401
+
+    @pytest.mark.django_db
+    def test_jwt_schema_uses_auth_tag(self, api_client: APIClient) -> None:
+        """Verify JWT endpoints are grouped under Auth in Swagger."""
+        response = api_client.get(
+            "/swagger/v1/swagger.json",
+            HTTP_ACCEPT="application/json",
+        )
+
+        schema = response.json()
+        paths = schema["paths"]
+        auth_tags = {
+            paths["/api/v1/auth/token/"]["post"]["tags"][0],
+            paths["/api/v1/auth/token/refresh/"]["post"]["tags"][0],
+            paths["/api/v1/auth/token/verify/"]["post"]["tags"][0],
+        }
+
+        assert response.status_code == 200
+        assert auth_tags == {"Auth"}
