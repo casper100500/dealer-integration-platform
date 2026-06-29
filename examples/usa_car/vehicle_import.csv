@@ -1,3 +1,3 @@
-vehicle_id,vin_code,registration,model_year,manufacturer,model_name,paint,category,fuel,gearbox,motor,amount_cents,currency_code
-USC-88291,2T3WFREV0FW654321,TX-7842,2022,TOYOTA,RAV4,Ocean Blue,SPORT_UTILITY,GAS,AUTO,2.5L I4,2599000,usd
-USC-99104,1FTFW1E50MFA12345,CA-5510,2021,FORD,F-150,Oxford White,PICKUP_TRUCK,DIESEL,AUTO,3.0L Power Stroke,3875050,USD
+source_vehicle_id,vin,plate_number,year,make,model,exterior_color,body_style,fuel_type,engine,transmission,price,currency
+USC-88291,2T3WFREV0FW654321,TX-7842,2022,toyota,RAV4,Ocean Blue,suv,gasoline,2.5L I4,automatic,25990.00,USD
+USC-99104,1FTFW1E50MFA12345,CA-5510,2021,ford,F-150,Oxford White,pickup,diesel,3.0L Power Stroke,automatic,38750.50,USD

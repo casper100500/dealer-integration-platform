@@ -13,6 +13,7 @@ from dealer_platform.inventory.models import (
 
 from .loaders import CsvBaseLoader, CsvRow, FieldMapping
 from .models import (
+    VehicleDataImportColumn,
     VehicleDataImportError,
     VehicleDataImportWarning,
 )
@@ -25,30 +26,16 @@ class VehicleBaseLoader(CsvBaseLoader):
     warning_model = VehicleDataImportWarning
     import_name = "Vehicle"
     standard_mapping: FieldMapping = {
-        "vin": "vin",
-        "plate_number": "plate_number",
-        "year": "year",
-        "make": "make",
-        "model": "model",
-        "exterior_color": "exterior_color",
-        "body_style": "body_style",
-        "fuel_type": "fuel_type",
-        "engine": "engine",
-        "transmission": "transmission",
-        "price": "price",
-        "currency": "currency",
+        column.value: column.value for column in VehicleDataImportColumn
     }
     vehicle_fields = {
-        "vin",
-        "plate_number",
-        "year",
-        "make",
-        "model",
-        "exterior_color",
-        "body_style",
-        "fuel_type",
-        "engine",
-        "transmission",
+        column.value
+        for column in VehicleDataImportColumn
+        if column
+        not in {
+            VehicleDataImportColumn.price,
+            VehicleDataImportColumn.currency,
+        }
     }
     supported_currencies = {currency for currency, _ in CURRENCY_CHOICES}
 
@@ -199,105 +186,3 @@ class VehicleDjangoLoader(VehicleBaseLoader):
     """Default Django-admin vehicle CSV import loader."""
 
     pass
-
-
-class VehicleUSACarLoader(VehicleBaseLoader):
-    """Parse provider-specific USA Car CSV imports."""
-
-    standard_mapping: FieldMapping = {
-        "vin_code": "vin",
-        "registration": "plate_number",
-        "model_year": "year",
-        "manufacturer": "make",
-        "model_name": "model",
-        "paint": "exterior_color",
-        "category": "body_style",
-        "fuel": "fuel_type",
-        "motor": "engine",
-        "gearbox": "transmission",
-        "amount_cents": "price",
-        "currency_code": "currency",
-    }
-    make_mapping = {
-        "FORD": "ford",
-        "HONDA": "honda",
-        "HYUNDAI": "hyundai",
-        "KIA": "kia",
-        "MAZDA": "mazda",
-        "MERCEDES_BENZ": "mercedes_benz",
-        "NISSAN": "nissan",
-        "SKODA": "skoda",
-        "TOYOTA": "toyota",
-        "VOLKSWAGEN": "volkswagen",
-    }
-    body_style_mapping = {
-        "CONVERTIBLE": "convertible",
-        "COUPE": "coupe",
-        "HATCHBACK": "hatchback",
-        "MINIVAN": "van",
-        "PICKUP_TRUCK": "pickup",
-        "SEDAN": "sedan",
-        "SPORT_UTILITY": "suv",
-        "VAN": "van",
-        "WAGON": "wagon",
-    }
-    fuel_type_mapping = {
-        "DIESEL": "diesel",
-        "ELECTRIC": "electric",
-        "GAS": "gasoline",
-        "HYBRID": "hybrid",
-        "LPG": "lpg",
-        "PLUG_IN_HYBRID": "plug_in_hybrid",
-    }
-    transmission_mapping = {
-        "AUTO": "automatic",
-        "CVT": "cvt",
-        "DUAL_CLUTCH": "dual_clutch",
-        "MANUAL": "manual",
-    }
-
-    def normalize_row(
-        self,
-        row: CsvRow,
-        field_mapping: FieldMapping | None,
-    ) -> CsvRow:
-        """Map and normalize USA Car CSV values for vehicle persistence."""
-        normalized = super().normalize_row(row, field_mapping)
-        normalized["make"] = self.map_provider_value(
-            normalized.get("make"),
-            self.make_mapping,
-        )
-        normalized["body_style"] = self.map_provider_value(
-            normalized.get("body_style"),
-            self.body_style_mapping,
-        )
-        normalized["fuel_type"] = self.map_provider_value(
-            normalized.get("fuel_type"),
-            self.fuel_type_mapping,
-        )
-        normalized["transmission"] = self.map_provider_value(
-            normalized.get("transmission"),
-            self.transmission_mapping,
-        )
-        normalized["price"] = self.cents_to_price(normalized.get("price"))
-        return normalized
-
-    def map_provider_value(
-        self,
-        value: str | None,
-        mapping: dict[str, str],
-    ) -> str:
-        """Map a USA Car enum to a platform value."""
-        if value is None or not value.strip():
-            return ""
-        return mapping.get(value.strip().upper(), "other")
-
-    def cents_to_price(self, value: str | None) -> str | None:
-        """Convert USA Car integer cents into decimal currency units."""
-        if value is None or not value.strip():
-            return None
-        try:
-            cents = Decimal(value)
-        except InvalidOperation:
-            return value
-        return f"{cents / Decimal(100):.2f}"

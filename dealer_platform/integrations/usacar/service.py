@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
+from decimal import Decimal
 from typing import Any, cast
 
 from django.db import transaction
 from django.utils import timezone
 
-from dealer_platform.dataimport.models import ImportSource, VehicleDataImport
+from dealer_platform.dataimport.models import (
+    ImportSource,
+    VehicleDataImport,
+    VehicleDataImportColumn,
+)
 from dealer_platform.files.utils import save_rows_as_csv_file
 from dealer_platform.integrations.models import USACarIntegrationConfig
 from dealer_platform.integrations.usacar.client import (
@@ -19,6 +24,39 @@ USACarClientFactory = Callable[[USACarIntegrationConfig], USACarClient]
 
 class USACarImportService:
     """Fetch USA Car inventory and create a CSV-backed import record."""
+
+    manufacturer_mapping = {
+        "M-04": "ford",
+        "M-17": "toyota",
+    }
+    body_style_mapping = {
+        11: "sedan",
+        22: "hatchback",
+        33: "wagon",
+        44: "suv",
+        55: "coupe",
+        66: "convertible",
+        77: "pickup",
+        88: "van",
+    }
+    fuel_type_mapping = {
+        "B": "plug_in_hybrid",
+        "D": "diesel",
+        "E": "electric",
+        "H": "hybrid",
+        "L": "lpg",
+        "P": "gasoline",
+    }
+    transmission_mapping = {
+        0: "automatic",
+        1: "cvt",
+        2: "dual_clutch",
+        3: "manual",
+    }
+    currency_mapping = {
+        840: "USD",
+        978: "EUR",
+    }
 
     def __init__(
         self,
@@ -62,24 +100,58 @@ class USACarImportService:
         asking_price = self._object(record, "asking_price")
 
         return {
-            "vehicle_id": self._value(record, "vehicle_id"),
-            "vin_code": self._value(identifiers, "vin_code"),
-            "registration": self._value(identifiers, "registration"),
-            "model_year": self._value(description, "model_year"),
-            "manufacturer": self._value(description, "manufacturer"),
-            "model_name": self._value(description, "name"),
-            "paint": self._value(specification, "paint"),
-            "category": self._value(specification, "category"),
-            "fuel": self._value(specification, "fuel"),
-            "gearbox": self._value(specification, "gearbox"),
-            "motor": self._value(specification, "motor"),
-            "amount_cents": self._value(
-                asking_price,
-                "amount_cents",
+            "source_vehicle_id": self._value(record, "vehicle_id"),
+            VehicleDataImportColumn.vin.value: self._value(
+                identifiers,
+                "vin_code",
             ),
-            "currency_code": self._value(
+            VehicleDataImportColumn.plate_number.value: self._value(
+                identifiers,
+                "registration",
+            ),
+            VehicleDataImportColumn.year.value: self._value(
+                description,
+                "model_year",
+            ),
+            VehicleDataImportColumn.make.value: self._mapped_value(
+                description,
+                "manufacturer_code",
+                self.manufacturer_mapping,
+            ),
+            VehicleDataImportColumn.model.value: self._value(
+                description,
+                "name",
+            ),
+            VehicleDataImportColumn.exterior_color.value: self._value(
+                specification,
+                "paint",
+            ),
+            VehicleDataImportColumn.body_style.value: self._mapped_value(
+                specification,
+                "body_code",
+                self.body_style_mapping,
+            ),
+            VehicleDataImportColumn.fuel_type.value: self._mapped_value(
+                specification,
+                "fuel_code",
+                self.fuel_type_mapping,
+            ),
+            VehicleDataImportColumn.engine.value: self._value(
+                specification,
+                "motor",
+            ),
+            VehicleDataImportColumn.transmission.value: self._mapped_value(
+                specification,
+                "transmission_code",
+                self.transmission_mapping,
+            ),
+            VehicleDataImportColumn.price.value: self._cents_to_price(
+                self._value(asking_price, "amount_cents")
+            ),
+            VehicleDataImportColumn.currency.value: self._mapped_value(
                 asking_price,
                 "currency_code",
+                self.currency_mapping,
             ),
         }
 
@@ -104,3 +176,24 @@ class USACarImportService:
         if value is None or isinstance(value, (str, int)):
             return value
         raise ValueError(f"{field_name} must be a string or integer")
+
+    def _mapped_value(
+        self,
+        data: dict[str, Any],
+        field_name: str,
+        mapping: Mapping[Any, str],
+    ) -> str:
+        """Translate an opaque USA Car code into a standardized value."""
+        value = self._value(data, field_name)
+        try:
+            return mapping[value]
+        except KeyError as error:
+            raise ValueError(
+                f"{field_name} has unsupported code {value!r}"
+            ) from error
+
+    def _cents_to_price(self, value: object) -> str:
+        """Convert an integer USA Car cent amount into a decimal price."""
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError("amount_cents must be an integer")
+        return f"{Decimal(value) / Decimal(100):.2f}"

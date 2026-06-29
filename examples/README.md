@@ -5,8 +5,8 @@ The examples are grouped by import source:
 - `csv/` contains standard and custom CSV feeds for Django-admin imports.
 - `usa_car/inventory_response.json` contains the fictional raw USA Car API
   response used by integration tests.
-- `usa_car/vehicle_import.csv` contains the provider-specific CSV produced from
-  that response.
+- `usa_car/vehicle_import.csv` contains the readable, standardized CSV produced
+  from that coded response.
 
 The dealer CSV files under `csv/` represent separate dealer feeds. Some VINs
 repeat intentionally so one vehicle can be tested with offers from multiple

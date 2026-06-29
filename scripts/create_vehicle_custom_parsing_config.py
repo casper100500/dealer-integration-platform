@@ -1,4 +1,5 @@
 from dealer_platform.dataimport.models import (
+    VehicleDataImportColumn,
     VehicleDataImportParsingConfig,
     VehicleDataImportParsingConfigField,
 )
@@ -6,16 +7,16 @@ from dealer_platform.dataimport.models import (
 CONFIG_NAME = "Config for custom fields"
 
 FIELD_MAPPINGS = {
-    "VIN Code": "vin",
-    "License Plate": "plate_number",
-    "Production Year": "year",
-    "Manufacturer": "make",
-    "Model Name": "model",
-    "Paint Color": "exterior_color",
-    "Vehicle Type": "body_style",
-    "Fuel": "fuel_type",
-    "Motor": "engine",
-    "Transmission Type": "transmission",
+    "VIN Code": VehicleDataImportColumn.vin,
+    "License Plate": VehicleDataImportColumn.plate_number,
+    "Production Year": VehicleDataImportColumn.year,
+    "Manufacturer": VehicleDataImportColumn.make,
+    "Model Name": VehicleDataImportColumn.model,
+    "Paint Color": VehicleDataImportColumn.exterior_color,
+    "Vehicle Type": VehicleDataImportColumn.body_style,
+    "Fuel": VehicleDataImportColumn.fuel_type,
+    "Motor": VehicleDataImportColumn.engine,
+    "Transmission Type": VehicleDataImportColumn.transmission,
 }
 
 COLUMNS_TO_SKIP = [
