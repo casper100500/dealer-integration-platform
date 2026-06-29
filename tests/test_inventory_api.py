@@ -262,6 +262,35 @@ class TestVehicleDealerOfferAPI:
         assert DealerOffer.objects.get().price == Decimal("21999.00")
 
 
+class TestBrowsableAPIAuth:
+    """Tests for browsable API session authentication."""
+
+    @pytest.mark.django_db
+    def test_session_login_authenticates_browsable_api(
+        self,
+        anonymous_api_client: APIClient,
+        user_model: UserModel,
+    ) -> None:
+        """Verify a browser session can access protected API pages."""
+        user_model.objects.create_user(
+            username="browser-user",
+            password="correct-password",
+        )
+
+        logged_in = anonymous_api_client.login(
+            username="browser-user",
+            password="correct-password",
+        )
+        response = anonymous_api_client.get(
+            "/api/v1/",
+            HTTP_ACCEPT="text/html",
+        )
+
+        assert logged_in is True
+        assert response.status_code == 200
+        assert b"Api Root" in response.content
+
+
 class TestJWTAuthAPI:
     """Tests for JWT authentication endpoints."""
 

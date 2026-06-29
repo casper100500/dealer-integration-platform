@@ -36,6 +36,10 @@ def health_check(request: HttpRequest) -> JsonResponse:
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
+        "api-auth/",
+        include("rest_framework.urls", namespace="rest_framework"),
+    ),
+    path(
         "api/v1/auth/token/",
         AuthTokenObtainPairView.as_view(),
         name="token_obtain_pair",
