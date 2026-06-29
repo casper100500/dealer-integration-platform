@@ -15,4 +15,4 @@ def task_run_vehicle_data_import(data_import_id: int) -> None:
     if data_import.source == ImportSource.django:
         loader_class = VehicleDjangoLoader
 
-    loader_class(data_import).run()
+    loader_class(data_import).run_parser()

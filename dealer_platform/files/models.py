@@ -2,7 +2,7 @@ from django.db import models
 
 
 class File(models.Model):
-    file = models.FileField(upload_to="imports/")
+    file = models.FileField(upload_to="data_import_files/")
     source_url = models.URLField(blank=True)
     original_name = models.CharField(max_length=255, blank=True)
     content_type = models.CharField(max_length=100, blank=True)

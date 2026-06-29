@@ -9,7 +9,7 @@ from django.dispatch import receiver
 
 class ImportSource(models.TextChoices):
     django = ("django", "Django")
-    usacar = ("usacar", "USAcar")
+    usacar = ("usacar", "USA car")
 
 
 class ImportStatus(models.TextChoices):
@@ -19,22 +19,25 @@ class ImportStatus(models.TextChoices):
     done = ("done", "Done")
 
 
+class VehicleDataImportColumn(models.TextChoices):
+    """Define canonical columns accepted by vehicle data imports."""
+
+    vin = ("vin", "VIN")
+    plate_number = ("plate_number", "Plate number")
+    year = ("year", "Year")
+    make = ("make", "Make")
+    model = ("model", "Model")
+    exterior_color = ("exterior_color", "Exterior color")
+    body_style = ("body_style", "Body style")
+    fuel_type = ("fuel_type", "Fuel type")
+    engine = ("engine", "Engine")
+    transmission = ("transmission", "Transmission")
+    price = ("price", "Price")
+    currency = ("currency", "Currency")
+
+
 IMPORT_SOURCE_CHOICES = ImportSource.choices
 IMPORT_STATUS_CHOICES = ImportStatus.choices
-VEHICLE_OBJECT_FIELD_CHOICES = [
-    ("vin", "VIN"),
-    ("plate_number", "Plate number"),
-    ("year", "Year"),
-    ("make", "Make"),
-    ("model", "Model"),
-    ("exterior_color", "Exterior color"),
-    ("body_style", "Body style"),
-    ("fuel_type", "Fuel type"),
-    ("engine", "Engine"),
-    ("transmission", "Transmission"),
-    ("price", "Price"),
-    ("currency", "Currency"),
-]
 
 
 class VehicleDataImportParsingConfig(models.Model):
@@ -57,7 +60,7 @@ class VehicleDataImportParsingConfigField(models.Model):
     )
     object_field = models.CharField(
         max_length=50,
-        choices=VEHICLE_OBJECT_FIELD_CHOICES,
+        choices=VehicleDataImportColumn.choices,
     )
     custom_field = models.CharField(max_length=255)
 

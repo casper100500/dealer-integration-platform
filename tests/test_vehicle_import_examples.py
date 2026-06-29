@@ -18,26 +18,14 @@ from dealer_platform.dataimport.models import (
     ImportSource,
     ImportStatus,
     VehicleDataImport,
+    VehicleDataImportColumn,
 )
 from dealer_platform.dataimport.vehicle_loaders import VehicleDjangoLoader
 from dealer_platform.files.models import File
 from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 
-EXAMPLES_DIR = Path(__file__).resolve().parent.parent / "examples"
-STANDARD_HEADER = [
-    "vin",
-    "plate_number",
-    "year",
-    "make",
-    "model",
-    "exterior_color",
-    "body_style",
-    "fuel_type",
-    "engine",
-    "transmission",
-    "price",
-    "currency",
-]
+EXAMPLES_DIR = Path(__file__).resolve().parent.parent / "examples" / "csv"
+STANDARD_HEADER = [column.value for column in VehicleDataImportColumn]
 
 
 def read_example_rows(filename: str) -> list[dict[str, str]]:
@@ -142,7 +130,7 @@ def test_importing_dealer_examples_shares_repeated_vins_between_dealers(
     ]
 
     for data_import in imports:
-        VehicleDjangoLoader(data_import).run()
+        VehicleDjangoLoader(data_import).run_parser()
         data_import.refresh_from_db()
 
         assert data_import.status == ImportStatus.done

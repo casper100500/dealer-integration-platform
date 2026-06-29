@@ -12,6 +12,7 @@ ALLOWED_HOSTS = os.environ.get(
 INSTALLED_APPS = [
     "dealer_platform.files.apps.FilesConfig",
     "dealer_platform.dataimport.apps.DataimportConfig",
+    "dealer_platform.integrations.apps.IntegrationsConfig",
     "dealer_platform.inventory.apps.InventoryConfig",
     "import_export",
     "rest_framework",

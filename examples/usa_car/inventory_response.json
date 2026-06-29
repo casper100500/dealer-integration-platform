@@ -1,0 +1,53 @@
+{
+  "request_id": "req-1048",
+  "generated_at": "2026-06-29T10:30:00Z",
+  "inventory": [
+    {
+      "vehicle_id": "USC-88291",
+      "identifiers": {
+        "vin_code": "2T3WFREV0FW654321",
+        "registration": "TX-7842"
+      },
+      "description": {
+        "manufacturer_code": "M-17",
+        "name": "RAV4",
+        "model_year": "2022"
+      },
+      "specification": {
+        "paint": "Ocean Blue",
+        "body_code": 44,
+        "fuel_code": "P",
+        "transmission_code": 0,
+        "motor": "2.5L I4"
+      },
+      "asking_price": {
+        "amount_cents": 2599000,
+        "currency_code": 840
+      }
+    },
+    {
+      "vehicle_id": "USC-99104",
+      "identifiers": {
+        "vin_code": "1FTFW1E50MFA12345",
+        "registration": "CA-5510"
+      },
+      "description": {
+        "manufacturer_code": "M-04",
+        "name": "F-150",
+        "model_year": 2021
+      },
+      "specification": {
+        "paint": "Oxford White",
+        "body_code": 77,
+        "fuel_code": "D",
+        "transmission_code": 0,
+        "motor": "3.0L Power Stroke"
+      },
+      "asking_price": {
+        "amount_cents": 3875050,
+        "currency_code": 840
+      }
+    }
+  ],
+  "next_cursor": null
+}

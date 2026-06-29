@@ -13,6 +13,7 @@ from dealer_platform.inventory.models import (
 
 from .loaders import CsvBaseLoader, CsvRow, FieldMapping
 from .models import (
+    VehicleDataImportColumn,
     VehicleDataImportError,
     VehicleDataImportWarning,
 )
@@ -25,30 +26,16 @@ class VehicleBaseLoader(CsvBaseLoader):
     warning_model = VehicleDataImportWarning
     import_name = "Vehicle"
     standard_mapping: FieldMapping = {
-        "vin": "vin",
-        "plate_number": "plate_number",
-        "year": "year",
-        "make": "make",
-        "model": "model",
-        "exterior_color": "exterior_color",
-        "body_style": "body_style",
-        "fuel_type": "fuel_type",
-        "engine": "engine",
-        "transmission": "transmission",
-        "price": "price",
-        "currency": "currency",
+        column.value: column.value for column in VehicleDataImportColumn
     }
     vehicle_fields = {
-        "vin",
-        "plate_number",
-        "year",
-        "make",
-        "model",
-        "exterior_color",
-        "body_style",
-        "fuel_type",
-        "engine",
-        "transmission",
+        column.value
+        for column in VehicleDataImportColumn
+        if column
+        not in {
+            VehicleDataImportColumn.price,
+            VehicleDataImportColumn.currency,
+        }
     }
     supported_currencies = {currency for currency, _ in CURRENCY_CHOICES}
 
