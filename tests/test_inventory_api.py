@@ -286,7 +286,7 @@ class TestBrowsableAPIAuth:
         )
 
         assert response.status_code == 302
-        assert response.url == "/api/v1/"
+        assert response.headers["Location"] == "/api/v1/"
 
     @pytest.mark.django_db
     def test_session_login_authenticates_browsable_api(
@@ -394,6 +394,9 @@ class TestJWTAuthAPI:
             paths["/api/v1/auth/token/refresh/"]["post"]["tags"][0],
             paths["/api/v1/auth/token/verify/"]["post"]["tags"][0],
         }
+        security_schemes = schema["components"]["securitySchemes"]
 
         assert response.status_code == 200
         assert auth_tags == {"Auth"}
+        assert "jwtAuth" in security_schemes
+        assert "cookieAuth" not in security_schemes

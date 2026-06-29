@@ -104,6 +104,9 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API for managing dealers, vehicles, and dealer offers.",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "AUTHENTICATION_WHITELIST": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
     "SWAGGER_UI_DIST": "SIDECAR",
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
