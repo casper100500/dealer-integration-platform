@@ -262,6 +262,58 @@ class TestVehicleDealerOfferAPI:
         assert DealerOffer.objects.get().price == Decimal("21999.00")
 
 
+class TestBrowsableAPIAuth:
+    """Tests for browsable API session authentication."""
+
+    @pytest.mark.django_db
+    def test_direct_login_redirects_to_api_root(
+        self,
+        anonymous_api_client: APIClient,
+        user_model: UserModel,
+    ) -> None:
+        """Verify a direct browsable API login redirects to the API root."""
+        user_model.objects.create_user(
+            username="browser-user",
+            password="correct-password",
+        )
+
+        response = anonymous_api_client.post(
+            "/api-auth/login/",
+            {
+                "username": "browser-user",
+                "password": "correct-password",
+            },
+        )
+
+        assert response.status_code == 302
+        assert response.headers["Location"] == "/api/v1/"
+
+    @pytest.mark.django_db
+    def test_session_login_authenticates_browsable_api(
+        self,
+        anonymous_api_client: APIClient,
+        user_model: UserModel,
+    ) -> None:
+        """Verify a browser session can access protected API pages."""
+        user_model.objects.create_user(
+            username="browser-user",
+            password="correct-password",
+        )
+
+        logged_in = anonymous_api_client.login(
+            username="browser-user",
+            password="correct-password",
+        )
+        response = anonymous_api_client.get(
+            "/api/v1/",
+            HTTP_ACCEPT="text/html",
+        )
+
+        assert logged_in is True
+        assert response.status_code == 200
+        assert b"Api Root" in response.content
+
+
 class TestJWTAuthAPI:
     """Tests for JWT authentication endpoints."""
 
@@ -326,3 +378,25 @@ class TestJWTAuthAPI:
         )
 
         assert response.status_code == 401
+
+    @pytest.mark.django_db
+    def test_jwt_schema_uses_auth_tag(self, api_client: APIClient) -> None:
+        """Verify JWT endpoints are grouped under Auth in Swagger."""
+        response = api_client.get(
+            "/swagger/v1/swagger.json",
+            HTTP_ACCEPT="application/json",
+        )
+
+        schema = response.json()
+        paths = schema["paths"]
+        auth_tags = {
+            paths["/api/v1/auth/token/"]["post"]["tags"][0],
+            paths["/api/v1/auth/token/refresh/"]["post"]["tags"][0],
+            paths["/api/v1/auth/token/verify/"]["post"]["tags"][0],
+        }
+        security_schemes = schema["components"]["securitySchemes"]
+
+        assert response.status_code == 200
+        assert auth_tags == {"Auth"}
+        assert "jwtAuth" in security_schemes
+        assert "cookieAuth" not in security_schemes

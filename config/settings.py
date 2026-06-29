@@ -72,6 +72,7 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+LOGIN_REDIRECT_URL = "/api/v1/"
 
 CELERY_BROKER_URL = os.environ.get(
     "CELERY_BROKER_URL",
@@ -86,6 +87,7 @@ CELERY_TASK_IGNORE_RESULT = True
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
@@ -102,6 +104,9 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API for managing dealers, vehicles, and dealer offers.",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "AUTHENTICATION_WHITELIST": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
     "SWAGGER_UI_DIST": "SIDECAR",
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",

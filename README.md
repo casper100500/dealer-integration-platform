@@ -61,6 +61,14 @@ curl http://localhost:8000/api/v1/vehicles/ \
   -H "Authorization: Bearer your-access-token"
 ```
 
+The DRF browsable API does not accept a JWT pasted into the page. For browser
+access, open `http://localhost:8000/api-auth/login/`, sign in with the Django
+user's username and password, and you will be redirected to
+`http://localhost:8000/api/v1/`.
+To use an access token interactively instead, open
+`http://localhost:8000/swagger/`, select **Authorize**, and enter the access
+token.
+
 Vehicle data imports are processed by the Celery worker service. Keep the
 `celery` and `redis` services running with the web service when testing import
 processing locally.
