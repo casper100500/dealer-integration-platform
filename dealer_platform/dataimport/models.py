@@ -9,7 +9,7 @@ from django.dispatch import receiver
 
 class ImportSource(models.TextChoices):
     django = ("django", "Django")
-    usacar = ("usacar", "USAcar")
+    usacar = ("usacar", "USA car")
 
 
 class ImportStatus(models.TextChoices):
