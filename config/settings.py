@@ -72,6 +72,7 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+LOGIN_REDIRECT_URL = "/api/v1/"
 
 CELERY_BROKER_URL = os.environ.get(
     "CELERY_BROKER_URL",

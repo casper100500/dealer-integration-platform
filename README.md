@@ -63,7 +63,8 @@ curl http://localhost:8000/api/v1/vehicles/ \
 
 The DRF browsable API does not accept a JWT pasted into the page. For browser
 access, open `http://localhost:8000/api-auth/login/`, sign in with the Django
-user's username and password, and then browse `http://localhost:8000/api/v1/`.
+user's username and password, and you will be redirected to
+`http://localhost:8000/api/v1/`.
 To use an access token interactively instead, open
 `http://localhost:8000/swagger/`, select **Authorize**, and enter the access
 token.

@@ -266,6 +266,29 @@ class TestBrowsableAPIAuth:
     """Tests for browsable API session authentication."""
 
     @pytest.mark.django_db
+    def test_direct_login_redirects_to_api_root(
+        self,
+        anonymous_api_client: APIClient,
+        user_model: UserModel,
+    ) -> None:
+        """Verify a direct browsable API login redirects to the API root."""
+        user_model.objects.create_user(
+            username="browser-user",
+            password="correct-password",
+        )
+
+        response = anonymous_api_client.post(
+            "/api-auth/login/",
+            {
+                "username": "browser-user",
+                "password": "correct-password",
+            },
+        )
+
+        assert response.status_code == 302
+        assert response.url == "/api/v1/"
+
+    @pytest.mark.django_db
     def test_session_login_authenticates_browsable_api(
         self,
         anonymous_api_client: APIClient,
