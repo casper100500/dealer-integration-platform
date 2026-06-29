@@ -1,10 +1,23 @@
 # Vehicle import examples
 
-These CSV files are sample vehicle feeds for testing the importer.
+The examples are grouped by import source:
 
-- `vehicle_import_standard_fields.csv` uses the built-in standard field names.
-- `vehicle_import_custom_fields_extra_columns.csv` uses nonstandard source columns and extra columns for parsing config tests.
-- `vehicle_import_dealer_northside.csv`, `vehicle_import_dealer_lakeside.csv`, and `vehicle_import_dealer_downtown.csv` are intended to be imported as separate dealer feeds. Some VINs repeat across these files so importer behavior can be checked for one vehicle listed by multiple dealers.
-- `vehicle_import_large_2,5k_records.csv` contains 2,500 rows with deterministic randomized VINs.
+- `csv/` contains standard and custom CSV feeds for Django-admin imports.
+- `usa_car/inventory_response.json` contains the fictional raw USA Car API
+  response used by integration tests.
+- `usa_car/vehicle_import.csv` contains the provider-specific CSV produced from
+  that response.
 
-Dealer identity is not stored in these CSVs. Select the dealer on the `VehicleDataImport` record before processing the file.
+The dealer CSV files under `csv/` represent separate dealer feeds. Some VINs
+repeat intentionally so one vehicle can be tested with offers from multiple
+dealers. The large example contains 2,500 deterministic records.
+
+Dealer identity is not stored in the files. Select the dealer on the
+`VehicleDataImport` record before processing an uploaded CSV.
+
+To test USA Car parsing manually in Django admin:
+
+1. Upload `usa_car/vehicle_import.csv` as a `File`.
+2. Create a `VehicleDataImport` for the desired dealer.
+3. Select `USA car` as the source and choose the uploaded file.
+4. Save the import so its normal signal and Celery task process the CSV.

@@ -17,6 +17,7 @@ class AbstractIntegrationConfig(models.Model):
 class USACarIntegrationConfig(AbstractIntegrationConfig):
     """Store connection configuration for a USA Car integration."""
 
+    name = models.CharField(max_length=255, unique=True)
     base_url = models.URLField()
     login = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
@@ -27,4 +28,4 @@ class USACarIntegrationConfig(AbstractIntegrationConfig):
 
     def __str__(self) -> str:
         """Return a readable dealer-specific configuration label."""
-        return f"USA Car integration for {self.dealer}"
+        return self.name

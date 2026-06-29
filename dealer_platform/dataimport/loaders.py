@@ -31,7 +31,7 @@ class AbstractBaseLoader:
     def __init__(self, data_import: VehicleDataImport) -> None:
         self.data_import = data_import
 
-    def run(self) -> None:
+    def run_parser(self) -> None:
         """Execute loading and persist lifecycle state."""
         self.data_import.status = ImportStatus.in_progress
         self.data_import.started_at = timezone.now()
@@ -91,6 +91,7 @@ class CsvBaseLoader(AbstractBaseLoader):
     """Read CSV rows, update counters, and delegate row-specific work."""
 
     def _load(self) -> None:
+        """Read and process every row in the configured CSV file."""
         counters: ImportCounters = {
             "total": 0,
             "created": 0,
