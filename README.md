@@ -102,30 +102,6 @@ Create a Django superuser:
 make superuser
 ```
 
-Run tests:
-
-```bash
-make test
-```
-
-Run formatting, lint, and type checks:
-
-```bash
-make lint
-```
-
-Add a Python dependency:
-
-```bash
-uv add package-name
-```
-
-After dependencies change, rebuild the Docker image:
-
-```bash
-docker compose build web
-```
-
 After creating a superuser, log in at:
 
 - `http://localhost:8000/admin/`
@@ -174,13 +150,89 @@ configured by `OPENSEARCH_AUDIT_INDEX`, which defaults to:
 dealer-platform-audit-logs
 ```
 
-Open OpenSearch Dashboards at:
+Audit logging must be enabled. It is enabled by default in Docker Compose; if
+you use a `.env` file, make sure it contains:
 
-- `http://localhost:5601/`
+```text
+OPENSEARCH_AUDIT_LOGS_ENABLED=True
+OPENSEARCH_AUDIT_INDEX=dealer-platform-audit-logs
+```
 
-Create a data view for `dealer-platform-audit-logs` and use `@timestamp` as
-the time field. Audit event documents include field-level changes in this
-shape:
+### Configure OpenSearch Dashboards after a rebuild
+
+1. Start OpenSearch, OpenSearch Dashboards, and the Django application:
+
+   ```bash
+   docker compose up -d opensearch opensearch-dashboards web
+   ```
+
+2. **Generate a vehicle audit event before opening Dashboards.** OpenSearch
+   does not contain an empty audit index immediately after a rebuild. The
+   application creates `dealer-platform-audit-logs` lazily when a vehicle is
+   created, updated, or deleted.
+
+   The normal way to generate the event is to use the vehicle API through
+   `http://localhost:8000/swagger/`:
+
+   - obtain an access token and authorize Swagger;
+   - call `POST /api/v1/vehicles/`, or update/delete an existing vehicle;
+   - confirm that the request completed successfully.
+
+   For a quick local setup, this command creates a test vehicle and therefore
+   generates a `created` audit event:
+
+   ```bash
+   docker compose exec web python manage.py shell -c \
+     'from uuid import uuid4; from dealer_platform.inventory.models import Vehicle; Vehicle.objects.create(vin=uuid4().hex[:17].upper(), make="other", model="Audit test")'
+   ```
+
+3. Verify that the vehicle operation created the audit index:
+
+   ```bash
+   curl 'http://localhost:9200/_cat/indices/dealer-platform-audit-logs?v'
+   ```
+
+   Continue only when the output contains `dealer-platform-audit-logs`. If it
+   returns `index_not_found_exception`, check that the vehicle operation
+   succeeded and that `OPENSEARCH_AUDIT_LOGS_ENABLED=True` is available to the
+   `web` container.
+
+4. Open `http://localhost:5601/`. On a fresh installation, select
+   **Explore on my own**.
+
+5. Open the top-left menu, then select **Management** ->
+   **Dashboards Management** -> **Index patterns**.
+
+6. Select **Create index pattern** and enter:
+
+   ```text
+   dealer-platform-audit-logs
+   ```
+
+   If `OPENSEARCH_AUDIT_INDEX` has a different value in `.env`, enter that
+   value instead. The page should say that the pattern matches one source.
+
+7. Select **Next step**, choose `@timestamp` as the time field, and select
+   **Create index pattern**.
+
+8. The page showing fields such as **searchable** and **aggregatable** means
+   the index pattern was created successfully. Those columns only describe
+   how each field can be used; there is no additional setup on that page.
+
+9. Open the top-left menu and select **OpenSearch Dashboards** ->
+   **Discover**. Select `dealer-platform-audit-logs` if it is not already
+   selected. Vehicle audit events now appear in the results.
+
+If no events appear, widen the time picker in the upper-right corner because
+Discover initially shows only a recent time range. Useful searches include:
+
+```text
+action: "updated"
+vehicle_vin: "1HGCM82633A004352"
+actor_username: "admin"
+```
+
+Audit event documents include field-level changes in this shape:
 
 ```json
 {
@@ -200,23 +252,3 @@ shape:
 
 The database runs as the `db` service in `docker-compose.yml` and stores data
 in the bind-mounted `./.postgres_data` directory.
-
-If Postgres rejects the default local credentials, reset only the existing
-development role password without deleting database files:
-
-```bash
-docker compose exec db psql -U postgres -d postgres \
-  -c "ALTER USER postgres WITH PASSWORD 'postgres';"
-```
-
-Django connects to it using these environment variables:
-
-```text
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-```
-
-Inside Docker, the hostname is `db` because that is the Compose service name.
