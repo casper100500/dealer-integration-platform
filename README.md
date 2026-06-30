@@ -102,6 +102,7 @@ In practical terms:
 ### Requirements
 
 - Git
+- Make
 - Docker with Docker Compose
 
 ### 1. Clone and start the project
@@ -109,12 +110,13 @@ In practical terms:
 ```bash
 git clone <repository-url>
 cd dealer-integration-platform
-docker compose up --build
+make up
 ```
 
-That is the complete startup path. Docker builds the application, starts all
-services, waits for their dependencies, and applies database migrations
-automatically. No local Python or PostgreSQL installation is required.
+`make up` runs the required Docker Compose build and startup command. That is
+the complete startup path: Docker builds the application, starts all services,
+waits for their dependencies, and applies database migrations automatically.
+No local Python or PostgreSQL installation is required.
 
 Wait until Django reports that the development server is running, then open:
 
@@ -135,7 +137,7 @@ The application is running after step 1. To use the protected API and Django
 admin, open a second terminal and create a user:
 
 ```bash
-docker compose exec web python manage.py createsuperuser
+make superuser
 ```
 
 Sign in at <http://localhost:8000/admin/> with that username and password.
@@ -178,6 +180,8 @@ standard columns, custom dealer columns, shared VINs, and a 2,500-row file.
 6. Refresh the import record to inspect its status, counters, warnings, and
    row-level errors.
 7. Open **Vehicles** to see normalized inventory and dealer offers.
+
+![Vehicle import progress and results in Django admin](screenshots/Django_vehicle_data_import.png)
 
 For a feed with non-standard headers, first create a **Vehicle data import
 parsing config** and map its source columns to the canonical fields. More
@@ -253,6 +257,8 @@ docker compose exec web python manage.py shell -c \
 Expected row-validation failures remain attached to the import record and are
 not sent to Sentry. Fatal import failures are reported.
 
+![A vehicle import failure reported in Sentry](screenshots/sentry_works.png)
+
 ### OpenSearch audit logs
 
 Vehicle create, update, and delete operations write structured documents to
@@ -292,6 +298,8 @@ An update event includes field-level changes:
   }
 }
 ```
+
+![Vehicle audit events in OpenSearch Dashboards](screenshots/OpenSearch.png)
 
 ## Development commands
 
