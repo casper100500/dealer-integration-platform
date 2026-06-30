@@ -85,6 +85,21 @@ CELERY_RESULT_BACKEND = os.environ.get(
 )
 CELERY_TASK_IGNORE_RESULT = True
 
+OPENSEARCH_URL = os.environ.get(
+    "OPENSEARCH_URL",
+    "http://localhost:9200",
+)
+OPENSEARCH_AUDIT_INDEX = os.environ.get(
+    "OPENSEARCH_AUDIT_INDEX",
+    "dealer-platform-audit-logs",
+)
+OPENSEARCH_TIMEOUT_SECONDS = float(
+    os.environ.get("OPENSEARCH_TIMEOUT_SECONDS", "5.0")
+)
+OPENSEARCH_AUDIT_LOGS_ENABLED = (
+    os.environ.get("OPENSEARCH_AUDIT_LOGS_ENABLED", "False") == "True"
+)
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",

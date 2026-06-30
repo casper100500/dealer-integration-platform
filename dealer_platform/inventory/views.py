@@ -9,6 +9,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from dealer_platform.inventory.audit import audit_actor
 from dealer_platform.inventory.models import Dealer, DealerOffer, Vehicle
 from dealer_platform.inventory.serializers import (
     DealerOfferSerializer,
@@ -42,6 +43,40 @@ class VehicleViewSet(viewsets.ModelViewSet):
 
     serializer_class = VehicleSerializer
     queryset = Vehicle.objects.order_by("id")
+
+    def create(
+        self, request: Request, *args: object, **kwargs: object
+    ) -> Response:
+        """Create a vehicle and attach its audit actor."""
+        with audit_actor(request.user):
+            return super().create(request, *args, **kwargs)
+
+    def update(
+        self, request: Request, *args: object, **kwargs: object
+    ) -> Response:
+        """Update a vehicle and attach its audit actor."""
+        with audit_actor(request.user):
+            return super().update(request, *args, **kwargs)
+
+    def partial_update(
+        self,
+        request: Request,
+        *args: object,
+        **kwargs: object,
+    ) -> Response:
+        """Partially update a vehicle and attach its audit actor."""
+        with audit_actor(request.user):
+            return super().partial_update(request, *args, **kwargs)
+
+    def destroy(
+        self,
+        request: Request,
+        *args: object,
+        **kwargs: object,
+    ) -> Response:
+        """Delete a vehicle and attach its audit actor."""
+        with audit_actor(request.user):
+            return super().destroy(request, *args, **kwargs)
 
 
 class VehicleDealerOfferView(APIView):

@@ -44,6 +44,7 @@ The Django application will be available at:
 - `http://localhost:8000/api/v1/dealers/`
 - `http://localhost:8000/api/v1/vehicles/`
 - `http://localhost:8000/swagger/`
+- `http://localhost:5601/` for OpenSearch Dashboards
 
 Inventory API endpoints require JWT authentication. Create a Django user, then
 request an access and refresh token pair:
@@ -72,6 +73,10 @@ token.
 Vehicle data imports are processed by the Celery worker service. Keep the
 `celery` and `redis` services running with the web service when testing import
 processing locally.
+
+Vehicle create, update, and delete operations are sent to OpenSearch as
+structured audit events. Each event stores the action, timestamp, changed
+vehicle fields, and the authenticated API user when one is available.
 
 Optional: copy the example environment file if you want to customize local settings:
 
@@ -131,6 +136,39 @@ After creating a superuser, log in at:
 - `celery`: Celery worker for asynchronous import processing
 - `db`: PostgreSQL 18.4
 - `redis`: Celery broker/result backend
+- `opensearch`: Stores structured vehicle audit events
+- `opensearch-dashboards`: UI for inspecting audit events
+
+## Audit Logs
+
+Vehicle create, update, and delete events are written to the OpenSearch index
+configured by `OPENSEARCH_AUDIT_INDEX`, which defaults to:
+
+```text
+dealer-platform-audit-logs
+```
+
+Open OpenSearch Dashboards at:
+
+- `http://localhost:5601/`
+
+Create a data view for `dealer-platform-audit-logs` and use `@timestamp` as
+the time field. Audit event documents include field-level changes in this
+shape:
+
+```json
+{
+  "event_type": "inventory.vehicle.audit",
+  "action": "updated",
+  "vehicle_vin": "1HGCM82633A004352",
+  "changes": {
+    "model": {
+      "old": "Camry",
+      "new": "Corolla"
+    }
+  }
+}
+```
 
 ## PostgreSQL
 
