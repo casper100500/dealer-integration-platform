@@ -139,6 +139,32 @@ After creating a superuser, log in at:
 - `opensearch`: Stores structured vehicle audit events
 - `opensearch-dashboards`: UI for inspecting audit events
 
+## Error Monitoring
+
+The Django web service and Celery worker report unhandled errors to Sentry when
+`SENTRY_DSN` is configured. Error reporting is disabled when the DSN is empty.
+Create a Sentry Python project, copy its DSN into `.env`, and restart the
+application:
+
+```text
+SENTRY_DSN=https://public-key@your-sentry-host/project-id
+SENTRY_ENVIRONMENT=development
+SENTRY_RELEASE=dealer-platform@local
+SENTRY_TRACES_SAMPLE_RATE=0.0
+```
+
+Performance tracing is disabled by default. To verify error ingestion without
+adding a test-only endpoint, send a diagnostic event from the web container:
+
+```bash
+docker compose run --rm web python manage.py shell -c \
+  'import sentry_sdk; sentry_sdk.capture_message("Dealer Platform test event")'
+```
+
+Fatal vehicle import errors are reported explicitly because the importer
+persists those failures instead of re-raising them. Expected row validation
+errors remain in the import error records and are not sent to Sentry.
+
 ## Audit Logs
 
 Vehicle create, update, and delete events are written to the OpenSearch index

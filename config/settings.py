@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from config.sentry import initialize_sentry
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "unsafe-dev-key")
@@ -98,6 +100,20 @@ OPENSEARCH_TIMEOUT_SECONDS = float(
 )
 OPENSEARCH_AUDIT_LOGS_ENABLED = (
     os.environ.get("OPENSEARCH_AUDIT_LOGS_ENABLED", "False") == "True"
+)
+
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+SENTRY_ENVIRONMENT = os.environ.get("SENTRY_ENVIRONMENT", "development")
+SENTRY_RELEASE = os.environ.get("SENTRY_RELEASE") or None
+SENTRY_TRACES_SAMPLE_RATE = float(
+    os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.0")
+)
+
+initialize_sentry(
+    dsn=SENTRY_DSN,
+    environment=SENTRY_ENVIRONMENT,
+    release=SENTRY_RELEASE,
+    traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
 )
 
 REST_FRAMEWORK = {

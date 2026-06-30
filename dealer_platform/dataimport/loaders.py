@@ -4,6 +4,7 @@ import csv
 from contextlib import contextmanager
 from typing import Any, Iterator, TextIO, TypedDict
 
+import sentry_sdk
 from django.utils import timezone
 
 from .models import ImportStatus, VehicleDataImport
@@ -42,6 +43,7 @@ class AbstractBaseLoader:
         try:
             self._load()
         except Exception as error:
+            sentry_sdk.capture_exception(error)
             self.create_import_error(str(error))
             self.data_import.status = ImportStatus.failed
         else:
