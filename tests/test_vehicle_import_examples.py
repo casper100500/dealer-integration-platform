@@ -10,6 +10,7 @@ import csv
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from unittest.mock import Mock
 
 import pytest
 from django.core.files import File as DjangoFile
@@ -148,3 +149,36 @@ def test_importing_dealer_examples_shares_repeated_vins_between_dealers(
     assert set(
         shared_vehicle.dealer_offers.values_list("dealer__name", flat=True)
     ) == {"Northside Motors", "Lakeside Autos"}
+
+
+@pytest.mark.django_db
+def test_unexpected_import_failure_is_reported_to_sentry(
+    settings: Any,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify a fatal import error is persisted and reported to Sentry."""
+    settings.MEDIA_ROOT = tmp_path
+    dealer = Dealer.objects.create(name="Northside Motors")
+    data_import = create_import(
+        "vehicle_import_dealer_northside.csv",
+        dealer,
+    )
+    error = RuntimeError("unexpected parser failure")
+    capture_exception_mock = Mock()
+    monkeypatch.setattr(
+        "dealer_platform.dataimport.loaders.sentry_sdk.capture_exception",
+        capture_exception_mock,
+    )
+    monkeypatch.setattr(
+        VehicleDjangoLoader,
+        "_load",
+        Mock(side_effect=error),
+    )
+
+    VehicleDjangoLoader(data_import).run_parser()
+    data_import.refresh_from_db()
+
+    assert data_import.status == ImportStatus.failed
+    assert data_import.errors.get().message == str(error)
+    capture_exception_mock.assert_called_once_with(error)
