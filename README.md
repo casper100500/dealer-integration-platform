@@ -163,6 +163,8 @@ For an interactive demo, open <http://localhost:8000/swagger/>, select
 **Authorize**, and paste the access token. Swagger lists every request body,
 response, and available endpoint.
 
+![Dealer Platform REST API in Swagger UI](screenshots/Swagger.png)
+
 The browsable API uses a Django session instead of a pasted JWT. Sign in at
 <http://localhost:8000/api-auth/login/> to use it.
 
