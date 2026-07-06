@@ -2,6 +2,10 @@ services:
   usa-car:
     build:
       context: ./services/usa_car
+    networks:
+      default:
+        aliases:
+          - usa-car.local
     volumes:
       - usa_car_data:/data
     ports:

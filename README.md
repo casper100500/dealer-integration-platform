@@ -218,7 +218,7 @@ config** in Django admin with:
 
 | Field | Development value |
 | --- | --- |
-| Base URL | `http://usa-car:8080` |
+| Base URL | `http://usa-car.local:8080` |
 | Login | `demo-dealer` |
 | Password | `demo-password` |
 
