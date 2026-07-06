@@ -1,0 +1,4 @@
+vehicle_id,vin_code,registration,manufacturer_code,name,model_year,paint,body_code,fuel_code,transmission_code,motor,amount_cents,currency_code,status
+USC-88291,2T3WFREV0FW654321,TX-7842,M-17,RAV4,2022,Ocean Blue,44,P,0,2.5L I4,2599000,840,available
+USC-99104,1FTFW1E50MFA12345,CA-5510,M-04,F-150,2021,Oxford White,77,D,0,3.0L Power Stroke,3875050,840,available
+USC-77112,1FA6P8TH0J5100001,AZ-2091,M-04,Mustang,2019,Race Red,55,P,3,2.3L EcoBoost,2140000,840,sold

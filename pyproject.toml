@@ -42,11 +42,13 @@ target-version = ["py314"]
 [tool.isort]
 profile = "black"
 line_length = 79
+extend_skip_glob = ["services/*"]
 
 [tool.mypy]
 plugins = [
     "mypy_django_plugin.main",
 ]
+exclude = ["services/"]
 python_version = "3.14"
 disallow_untyped_defs = true
 check_untyped_defs = true
@@ -67,3 +69,4 @@ django_settings_module = "config.settings"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.test_settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
+testpaths = ["tests"]
