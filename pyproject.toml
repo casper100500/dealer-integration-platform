@@ -9,6 +9,7 @@ dependencies = [
     "django>=6.0.6,<7.0",
     "psycopg[binary]>=3.1,<4.0",
     "celery[redis]>=5.5,<6.0",
+    "django-celery-beat>=2.9,<3.0",
     "djangorestframework>=3.17,<4.0",
     "drf-spectacular[sidecar]>=0.29,<1.0",
     "django-import-export>=4.4.1",
@@ -58,6 +59,8 @@ warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = [
+    "django_celery_beat",
+    "django_celery_beat.*",
     "import_export",
     "import_export.*",
 ]

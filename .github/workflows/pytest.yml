@@ -22,4 +22,8 @@ jobs:
         run: docker compose up --detach --wait db redis
 
       - name: Run pytest
-        run: docker compose run --rm --no-deps web pytest tests/test_vehicle_import_examples.py -n0
+        run: >-
+          docker compose run --rm --no-deps web pytest
+          tests/test_vehicle_import_examples.py
+          tests/test_celery_beat.py
+          -n0

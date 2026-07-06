@@ -17,6 +17,7 @@ dealer-specific prices, and make failures and data changes observable.
 - Documenting and testing an API with OpenAPI and Swagger UI
 - Securing API endpoints with JWT access and refresh tokens
 - Processing long-running imports asynchronously with Celery and Redis
+- Managing database-backed periodic tasks through Django admin
 - Integrating differently shaped CSV and third-party API feeds
 - Connecting to an independently containerized, file-backed microservice
 - Mapping source-specific fields and codes to a canonical vehicle model
@@ -91,6 +92,7 @@ In practical terms:
 ### Background processing and observability
 
 - Celery workers with Redis as broker and result backend
+- Celery Beat schedules stored in PostgreSQL and managed through Django admin
 - PostgreSQL persistence
 - Structured OpenSearch audit events for vehicle create, update, and delete
 - Field-level before/after values in update events
@@ -227,6 +229,25 @@ configuration name in its `UsaCarConfig` keyword argument. The dealer-side
 adapter authenticates, follows pagination, translates USA Car codes, archives
 the response as CSV, and starts the normal import pipeline.
 
+To schedule this import instead of invoking it from a shell:
+
+1. Open Django admin and add an **Interval schedule** or **Crontab schedule**
+   under **Periodic Tasks**.
+2. Add a **Periodic task** with the task
+   `dealer_platform.integrations.tasks.task_fetch_usacar_inventory`.
+3. Select the schedule and enter these keyword arguments:
+
+   ```json
+   {"UsaCarConfig": "Demo USA Car"}
+   ```
+
+4. Save and leave the periodic task enabled.
+
+The `celery-beat` service reads schedules from PostgreSQL and sends due tasks
+to Redis. The `celery` worker executes them. The periodic-task admin also
+provides an action to run a selected task immediately. Keep only one Beat
+scheduler running for this stack so a due import is not submitted twice.
+
 The provider's input CSV intentionally differs from the dealer platform's
 canonical import format. USA Car owns its source model; the integration
 adapter owns translation between the two systems. More service details are in
@@ -257,6 +278,7 @@ The machine-readable OpenAPI schema is available at
 | `usa-car` | File-backed external inventory provider | `8081` |
 | `web` | Django API and admin | `8000` |
 | `celery` | Asynchronous import processing | — |
+| `celery-beat` | Database-backed periodic task scheduler | — |
 | `db` | PostgreSQL database | `5432` |
 | `redis` | Celery broker and result backend | `6379` |
 | `opensearch` | Structured vehicle audit events | `9200` |
@@ -375,6 +397,7 @@ docker compose run --rm web python manage.py check
 - FastAPI
 - PostgreSQL
 - Celery and Redis
+- django-celery-beat
 - OpenSearch and OpenSearch Dashboards
 - Sentry SDK
 - drf-spectacular / Swagger UI

@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     "dealer_platform.dataimport.apps.DataimportConfig",
     "dealer_platform.integrations.apps.IntegrationsConfig",
     "dealer_platform.inventory.apps.InventoryConfig",
+    "django_celery_beat",
     "import_export",
     "rest_framework",
     "drf_spectacular",
@@ -86,6 +87,7 @@ CELERY_RESULT_BACKEND = os.environ.get(
     CELERY_BROKER_URL,
 )
 CELERY_TASK_IGNORE_RESULT = True
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 OPENSEARCH_URL = os.environ.get(
     "OPENSEARCH_URL",
