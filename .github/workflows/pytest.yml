@@ -24,6 +24,5 @@ jobs:
       - name: Run pytest
         run: >-
           docker compose run --rm --no-deps web pytest
-          tests/test_vehicle_import_examples.py
-          tests/test_celery_beat.py
+          tests
           -n0
