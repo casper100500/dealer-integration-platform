@@ -1,6 +1,5 @@
 from dealer_platform.inventory.models import Dealer
 
-
 DEALERS = [
     {
         "external_id": "northside-motors",
