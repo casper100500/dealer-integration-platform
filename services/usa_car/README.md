@@ -19,8 +19,10 @@ docker compose up --build
 
 The explicit Compose project name creates a separate
 `usa-car-microservice` stack in Docker Desktop. It does not become part of
-the `dealer-integration-platform` stack. The API documentation is available
-at <http://localhost:8081/docs>.
+the `dealer-integration-platform` stack. Changes under `app/` automatically
+reload the development server, so rebuilding or restarting the container is
+not necessary. The API documentation is available at
+<http://localhost:8081/swagger>.
 
 Run `docker compose down` from this directory to stop the microservice.
 The development defaults work without configuration. To customize its

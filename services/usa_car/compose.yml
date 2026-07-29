@@ -3,7 +3,18 @@ name: usa-car-microservice
 services:
   usa-car:
     build: .
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --reload
+      - --reload-dir
+      - /service/app
     volumes:
+      - ./app:/service/app
       - usa_car_data:/data
     ports:
       - "8081:8080"
