@@ -9,6 +9,7 @@ dependencies = [
     "django>=6.0.6,<7.0",
     "psycopg[binary]>=3.1,<4.0",
     "celery[redis]>=5.5,<6.0",
+    "django-celery-beat>=2.9,<3.0",
     "djangorestframework>=3.17,<4.0",
     "drf-spectacular[sidecar]>=0.29,<1.0",
     "django-import-export>=4.4.1",
@@ -42,11 +43,13 @@ target-version = ["py314"]
 [tool.isort]
 profile = "black"
 line_length = 79
+extend_skip_glob = ["services/*"]
 
 [tool.mypy]
 plugins = [
     "mypy_django_plugin.main",
 ]
+exclude = ["services/"]
 python_version = "3.14"
 disallow_untyped_defs = true
 check_untyped_defs = true
@@ -56,6 +59,8 @@ warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = [
+    "django_celery_beat",
+    "django_celery_beat.*",
     "import_export",
     "import_export.*",
 ]
@@ -67,3 +72,4 @@ django_settings_module = "config.settings"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.test_settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
+testpaths = ["tests"]

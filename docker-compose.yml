@@ -1,4 +1,34 @@
 services:
+  usa-car:
+    build:
+      context: ./services/usa_car
+    networks:
+      default:
+        aliases:
+          - usa-car.local
+    volumes:
+      - usa_car_data:/data
+    ports:
+      - "8081:8080"
+    environment:
+      USA_CAR_INVENTORY_PATH: /data/current_inventory.csv
+      USA_CAR_API_LOGIN: ${USA_CAR_API_LOGIN:-demo-dealer}
+      USA_CAR_API_PASSWORD: ${USA_CAR_API_PASSWORD:-demo-password}
+      USA_CAR_ACCESS_TOKEN: ${USA_CAR_ACCESS_TOKEN:-demo-access-token}
+      USA_CAR_ADMIN_KEY: ${USA_CAR_ADMIN_KEY:-demo-admin-key}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen("http://localhost:8080/health/", timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
   web:
     image: web
     build: .
@@ -43,6 +73,18 @@ services:
         condition: service_healthy
       opensearch:
         condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen("http://localhost:8000/health/", timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   celery:
     build: .
@@ -79,6 +121,39 @@ services:
       redis:
         condition: service_healthy
       opensearch:
+        condition: service_healthy
+
+  celery-beat:
+    build: .
+    command:
+      - celery
+      - -A
+      - config
+      - beat
+      - --loglevel=info
+      - --scheduler
+      - django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/code
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me-in-development}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-development}
+      SENTRY_RELEASE: ${SENTRY_RELEASE:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0.0}
+    depends_on:
+      web:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   db:
@@ -141,3 +216,6 @@ services:
     depends_on:
       opensearch:
         condition: service_healthy
+
+volumes:
+  usa_car_data:
