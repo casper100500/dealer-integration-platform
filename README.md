@@ -139,7 +139,7 @@ Wait until Django reports that the development server is running, then open:
 | <http://localhost:8000/health/> | Application health check |
 | <http://localhost:8000/swagger/> | Interactive API documentation |
 | <http://localhost:8000/admin/> | Django administration |
-| <http://localhost:8081/docs> | USA Car service documentation |
+| <http://localhost:8081/swagger> | USA Car Swagger documentation |
 | <http://localhost:5601/> | OpenSearch Dashboards |
 
 Use `Ctrl+C` to stop the foreground stack. Start it in the background with
