@@ -47,6 +47,8 @@ def create_app(
             "A file-backed vehicle provider used to demonstrate "
             "service-to-service inventory integration."
         ),
+        docs_url="/swagger",
+        redoc_url="/redoc",
         lifespan=lifespan,
     )
 
