@@ -119,9 +119,18 @@ make up
 ```
 
 `make up` runs the required Docker Compose build and startup command. That is
-the complete startup path: Docker builds the application, starts all services,
+the platform startup path: Docker builds the application, starts its services,
 waits for their dependencies, and applies database migrations automatically.
 No local Python or PostgreSQL installation is required.
+
+Start the independently managed USA Car microservice in a second terminal:
+
+```bash
+cd services/usa_car
+docker compose up --build
+```
+
+Docker Desktop displays it as a separate `usa-car-microservice` stack.
 
 Wait until Django reports that the development server is running, then open:
 
@@ -222,7 +231,7 @@ config** in Django admin with:
 
 | Field | Development value |
 | --- | --- |
-| Base URL | `http://usa-car.local:8080` |
+| Base URL | `http://host.docker.internal:8081` |
 | Login | `demo-dealer` |
 | Password | `demo-password` |
 
@@ -277,7 +286,6 @@ The machine-readable OpenAPI schema is available at
 
 | Service | Responsibility | Local port |
 | --- | --- | --- |
-| `usa-car` | File-backed external inventory provider | `8081` |
 | `web` | Django API and admin | `8000` |
 | `celery` | Asynchronous import processing | — |
 | `celery-beat` | Database-backed periodic task scheduler | — |
@@ -286,8 +294,8 @@ The machine-readable OpenAPI schema is available at
 | `opensearch` | Structured vehicle audit events | `9200` |
 | `opensearch-dashboards` | Audit-event exploration UI | `5601` |
 
-PostgreSQL data is retained in `.postgres_data`, and the accepted USA Car
-supplier feed is retained in the `usa_car_data` Docker volume between
+PostgreSQL data is retained in `.postgres_data`. The separate USA Car stack
+retains its accepted supplier feed in its `usa_car_data` Docker volume between
 container restarts.
 
 ## Configuration

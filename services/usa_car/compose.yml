@@ -1,0 +1,30 @@
+name: usa-car-microservice
+
+services:
+  usa-car:
+    build: .
+    volumes:
+      - usa_car_data:/data
+    ports:
+      - "8081:8080"
+    environment:
+      USA_CAR_INVENTORY_PATH: /data/current_inventory.csv
+      USA_CAR_API_LOGIN: ${USA_CAR_API_LOGIN:-demo-dealer}
+      USA_CAR_API_PASSWORD: ${USA_CAR_API_PASSWORD:-demo-password}
+      USA_CAR_ACCESS_TOKEN: ${USA_CAR_ACCESS_TOKEN:-demo-access-token}
+      USA_CAR_ADMIN_KEY: ${USA_CAR_ADMIN_KEY:-demo-admin-key}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen("http://localhost:8080/health/", timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  usa_car_data:
