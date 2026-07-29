@@ -4,14 +4,12 @@ on:
   pull_request:
     paths:
       - "services/usa_car/**"
-      - "docker-compose.yml"
       - ".github/workflows/usa-car.yml"
   push:
     branches:
       - main
     paths:
       - "services/usa_car/**"
-      - "docker-compose.yml"
       - ".github/workflows/usa-car.yml"
 
 jobs:
@@ -24,19 +22,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build USA Car image
+        working-directory: services/usa_car
         run: docker compose build usa-car
 
       - name: Run pytest
+        working-directory: services/usa_car
         run: docker compose run --rm --no-deps usa-car pytest
 
       - name: Check formatting with Black
+        working-directory: services/usa_car
         run: docker compose run --rm --no-deps usa-car black --check .
 
       - name: Check import sorting with isort
+        working-directory: services/usa_car
         run: docker compose run --rm --no-deps usa-car isort --check-only .
 
       - name: Lint with flake8
+        working-directory: services/usa_car
         run: docker compose run --rm --no-deps usa-car flake8 .
 
       - name: Type check with mypy
+        working-directory: services/usa_car
         run: docker compose run --rm --no-deps usa-car mypy app tests
